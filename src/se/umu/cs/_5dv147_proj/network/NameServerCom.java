@@ -34,11 +34,22 @@ public class NameServerCom {
 
     }
 
+    public void createGroup(String group) throws RemoteException {
+        this.ns.createGroup(group, this.com);
+    }
     public void joinGroup(String group) throws RemoteException {
-        ns.joinGroup(group, this.com);
+        this.ns.joinGroup(group);
     }
 
     public void updateGroupList() throws RemoteException {
         this.groupList = this.ns.groupList();
+    }
+
+    public void takeLeader(String group) throws RemoteException {
+        this.ns.assignNewLeader(group, this.com);
+    }
+
+    public String[] getGroupList(){
+        return this.groupList;
     }
 }
