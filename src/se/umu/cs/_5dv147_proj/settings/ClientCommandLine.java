@@ -1,4 +1,4 @@
-package se.umu.cs._5dv147_proj_.settings;
+package se.umu.cs._5dv147_proj.settings;
 
 import org.apache.commons.cli.*;
 
