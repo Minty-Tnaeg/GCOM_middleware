@@ -1,6 +1,7 @@
 package se.umu.cs._5dv147_proj.network;
 
 
+import remote.interfaces.ComModuleInterface;
 import remote.interfaces.NameServerInterface;
 import remote.objects.ComModuleImp;
 
@@ -14,10 +15,10 @@ import java.rmi.registry.Registry;
  */
 public class NameServerCom {
     private String[] groupList;
-    private ComModuleImp com;
+    private ComModuleInterface com;
     private NameServerInterface ns;
 
-    public NameServerCom(String ip, int port, ComModuleImp com) {
+    public NameServerCom(String ip, int port, ComModuleInterface com) {
         this.com = com;
         try {
 
@@ -37,8 +38,9 @@ public class NameServerCom {
     public void createGroup(String group) throws RemoteException {
         this.ns.createGroup(group, this.com);
     }
-    public void joinGroup(String group) throws RemoteException {
-        this.ns.joinGroup(group);
+
+    public ComModuleInterface joinGroup(String group) throws RemoteException {
+        return this.ns.joinGroup(group);
     }
 
     public void updateGroupList() throws RemoteException {
