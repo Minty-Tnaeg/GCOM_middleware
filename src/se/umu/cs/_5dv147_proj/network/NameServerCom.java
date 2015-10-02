@@ -14,7 +14,7 @@ import java.rmi.registry.Registry;
  * Created by c10mjn on 2015-09-30.
  */
 public class NameServerCom {
-    private String[] groupList;
+    private String[][] groupList;
     private ComModuleInterface com;
     private NameServerInterface ns;
 
@@ -27,7 +27,6 @@ public class NameServerCom {
             updateGroupList();
 
         } catch (RemoteException e) {
-            //e.printStackTrace();
             System.err.println(e.getMessage());
         } catch (NotBoundException e) {
             e.printStackTrace();
@@ -35,12 +34,8 @@ public class NameServerCom {
 
     }
 
-    public void createGroup(String group) throws RemoteException {
-        this.ns.createGroup(group, this.com);
-    }
-
     public ComModuleInterface joinGroup(String group) throws RemoteException {
-        return this.ns.joinGroup(group);
+        return this.ns.joinGroup(group, com);
     }
 
     public void updateGroupList() throws RemoteException {
@@ -51,7 +46,7 @@ public class NameServerCom {
         this.ns.assignNewLeader(group, this.com);
     }
 
-    public String[] getGroupList(){
+    public String[][] getGroupList(){
         return this.groupList;
     }
 }

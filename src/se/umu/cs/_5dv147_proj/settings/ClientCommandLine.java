@@ -7,19 +7,30 @@ import org.apache.commons.cli.*;
  */
 public class ClientCommandLine {
     private CommandLineParser cmd;
-
+    public boolean debug = false;
+    public String nameserverAdress;
+    public String nameserverPort;
 
     public ClientCommandLine(String[] args) throws ParseException {
         this.cmd = new DefaultParser();
         Options comOpt = createOptionsObject();
-        this.cmd.parse(comOpt, args);
-
+        CommandLine com = this.cmd.parse(comOpt, args);
+        if(com.hasOption("d")){
+            debug = true;
+        }
+        if(com.hasOption("a")){
+            nameserverAdress = com.getOptionValue("a");
+        }
+        if(com.hasOption("p")){
+            nameserverPort = com.getOptionValue("p");
+        }
     }
-
 
     private static Options createOptionsObject() {
         Options comOptions = new Options();
         comOptions.addOption("d", "debug", false, "Enable debug mode");
+        comOptions.addOption("a", "adress", true, "Nameserver Adress");
+        comOptions.addOption("p", "port", true, "Nameserver port");
         // addOptions(flag, shortDesc, hasArg, longDesc);
         return comOptions;
     }
