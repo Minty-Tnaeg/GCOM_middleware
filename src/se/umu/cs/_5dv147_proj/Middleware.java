@@ -6,6 +6,7 @@ import remote.interfaces.ComModuleInterface;
 import remote.interfaces.NameServerInterface;
 import remote.objects.ComModuleImp;
 
+import se.umu.cs._5dv147_proj.message.module.MessageModule;
 import se.umu.cs._5dv147_proj.network.NameServerCom;
 import se.umu.cs._5dv147_proj.settings.*;
 
@@ -26,6 +27,7 @@ public class Middleware {
     private ComModuleInterface stub;
     private String group;
     private ComModuleInterface leader;
+    private MessageModule mm;
 
     private ArrayList<ActionListener> listeners;
 
