@@ -1,78 +1,102 @@
 package se.umu.cs._5dv147_proj.groupmanagement.module;
 
 import remote.interfaces.ComModuleInterface;
-import remote.objects.ComModuleImp;
+import se.umu.cs._5dv147_proj.communication.api.CommunicationAPI;
+
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
 /**
  * Created by c10mjn on 2015-10-05.
+ * @author c10mjn
+ *
+ * The groupmodule hold communication between NameServer and Middleware.
+ * Initiates the GCOM middleswars proxy to RMI registry.
+ *
  */
 public class GroupModule {
     private ComModuleInterface leader;
-    private ComModuleImp com;
+    private CommunicationAPI com;
     private ArrayList<ComModuleInterface> proxyList;
     private NameServerCom ns;
 
 
+    /**
+     * Contructor for the GroupModule
+     * @param nameServerAddress nameserver address
+     * @param port nameServer rmi registry port
+     * @param nickName Prefered nickname on server.
+     * @throws RemoteException
+     *
+     * Constructs the group module.
+     */
     public GroupModule(String nameServerAddress, int port, String nickName) throws RemoteException {
         this.proxyList = new ArrayList<>();
-        this.com = new ComModuleImp(nickName);
+        this.com = new CommunicationAPI(nickName);
         this.proxyList.add((ComModuleInterface) UnicastRemoteObject.exportObject(this.com, 0));
-
-
         ns = new NameServerCom(nameServerAddress, port, this.proxyList.get(0));
-
-    }
-
-    public void send(String s) {
-        try {
-            this.com.sendMessage(s, leader);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public String receive() {
-        return com.readMessage();
     }
 
     /*********************Name server***********************/
 
-    public void joinGroup(String s) {
-        try {
-            this.leader = ns.joinGroup(s);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+
+    /**
+     *
+     * @param groupName group user whishes to join.
+     * @throws RemoteException
+     *
+     */
+    public void joinGroup(String groupName) throws RemoteException {
+        this.leader = ns.joinGroup(groupName);
     }
 
+    /**
+     *
+     * @param group group which lacks leader.
+     * @throws RemoteException
+     */
     public void electLeader(String group) throws RemoteException {
         this.ns.takeLeader(group);
     }
 
-    public String[][] getGroups() {
-        try {
-            ns.updateGroupList();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+    /**
+     *
+     * @return Group list of <GroupName, LeaderName>
+     * @throws RemoteException
+     */
+    public String[][] getGroups() throws RemoteException {
+        ns.updateGroupList();
+
         return ns.getGroupList();
     }
 
 
     /************************ Group Module *******************/
 
+    /**
+     *
+     * @return List of all known members
+     */
     public ArrayList<ComModuleInterface> getProxyList() {
         return this.proxyList;
     }
 
-    public <T extends ComModuleInterface> void addMember(T newMember) {
+    /**
+     * @param newMember the new member.
+     */
+    public void addMember(ComModuleInterface newMember) {
         this.proxyList.add(newMember);
+    }
+
+    /**
+     * Get created com module implementation.
+     * @return middleware proxy.
+     */
+    public CommunicationAPI getCommunicationAPI() {
+        return this.com;
     }
 
 

@@ -3,7 +3,6 @@ package se.umu.cs._5dv147_proj.groupmanagement.module;
 
 import remote.interfaces.ComModuleInterface;
 import remote.interfaces.NameServerInterface;
-import remote.objects.ComModuleImp;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;

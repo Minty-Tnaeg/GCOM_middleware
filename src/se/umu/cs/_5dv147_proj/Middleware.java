@@ -39,8 +39,9 @@ public class Middleware {
 
         try {
             ClientCommandLine cli = new ClientCommandLine(args);
-            this.messageModule = new MessageModule();
             this.groupModule = new GroupModule(cli.nameserverAdress, Integer.parseInt(cli.nameserverPort), cli.nickName);
+            this.messageModule = new MessageModule();
+
 
         } catch (ParseException e) {
             Debug.getDebug().log(e);
@@ -57,7 +58,11 @@ public class Middleware {
     /* Group Module */
 
     public void joinGroup(String group) {
-        this.groupModule.joinGroup(group);
+        try {
+            this.groupModule.joinGroup(group);
+        } catch (RemoteException e) {
+            Debug.getDebug().log(e);
+        }
     }
 
     public ArrayList<ComModuleInterface> getProxyList() {
@@ -65,7 +70,13 @@ public class Middleware {
     }
 
     public String[][] getGroupList() {
-        return this.groupModule.getGroups();
+        try {
+            return this.groupModule.getGroups();
+        } catch (RemoteException e) {
+            Debug.getDebug().log(e);
+        }
+        return null;
+
     }
 
     public <T extends ComModuleInterface> void addMember(T member){
