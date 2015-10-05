@@ -5,7 +5,8 @@ import remote.interfaces.ComModuleInterface;
 import remote.objects.AbstractContainer;
 import remote.objects.AbstractMessage;
 import se.umu.cs._5dv147_proj.communication.api.CommunicationAPI;
-import se.umu.cs._5dv147_proj.communication.module.CommunicationModule;
+import se.umu.cs._5dv147_proj.communication.module.BasicCommunicationModule;
+
 import se.umu.cs._5dv147_proj.message.container.CausalContainer;
 import se.umu.cs._5dv147_proj.message.container.ContainerType;
 import se.umu.cs._5dv147_proj.message.container.UnorderedContainer;
@@ -23,14 +24,14 @@ import java.util.concurrent.PriorityBlockingQueue;
  */
 public class MessageModule {
     private HashMap<UUID, Integer> seenVector;
-    private CommunicationModule comMod;
+    private BasicCommunicationModule comMod;
     private PriorityBlockingQueue<AbstractContainer> incMessageQueue;
     private PriorityBlockingQueue<AbstractContainer> holdBackQueue;
     private ArrayList<ActionListener> listeners;
     private ContainerType type;
 
     public MessageModule(CommunicationAPI comAPI, ContainerType containerType) {
-        this.comMod = new CommunicationModule(this, comAPI);
+        this.comMod = new BasicCommunicationModule(this, comAPI);
         this.incMessageQueue = new PriorityBlockingQueue<>();
         this.holdBackQueue = new PriorityBlockingQueue<>();
     }
