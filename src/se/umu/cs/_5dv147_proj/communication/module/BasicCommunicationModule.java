@@ -3,7 +3,7 @@ package se.umu.cs._5dv147_proj.communication.module;
 import remote.interfaces.ComModuleInterface;
 import remote.objects.AbstractCommunication;
 import remote.objects.AbstractContainer;
-import se.umu.cs._5dv147_proj.communication.api.CommunicationAPI;
+import se.umu.cs._5dv147_proj.communication.api.ReceiveProxy;
 import se.umu.cs._5dv147_proj.message.module.MessageModule;
 import se.umu.cs._5dv147_proj.settings.Debug;
 
@@ -15,11 +15,12 @@ import java.util.ArrayList;
  */
 public class BasicCommunicationModule extends AbstractCommunication {
     private MessageModule mm;
-    private CommunicationAPI comAPI;
+    private ReceiveProxy comAPI;
 
-    public BasicCommunicationModule(MessageModule m, CommunicationAPI comAPI) {
+    public BasicCommunicationModule(MessageModule m, ReceiveProxy comAPI) {
         this.mm = m;
         this.comAPI = comAPI;
+        this.comAPI.setCommunuicationModule(this);
     }
 
     @Override

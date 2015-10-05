@@ -16,9 +16,4 @@ public class TextMessage extends AbstractMessage {
     public String getMessage(){
         return this.message;
     }
-
-    @Override
-    public void method() {
-
-    }
 }

@@ -6,13 +6,15 @@ import remote.interfaces.ComModuleInterface;
 
 import remote.objects.AbstractMessage;
 import se.umu.cs._5dv147_proj.groupmanagement.module.GroupModule;
+import se.umu.cs._5dv147_proj.message.container.ContainerType;
 import se.umu.cs._5dv147_proj.message.module.MessageModule;
 
 import se.umu.cs._5dv147_proj.message.type.ElectionMessage;
+import se.umu.cs._5dv147_proj.message.type.JoinMessage;
 import se.umu.cs._5dv147_proj.settings.*;
 
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
@@ -20,13 +22,8 @@ import java.util.ArrayList;
  * Created by c10mjn on 20/09/15.
  */
 public class Middleware {
-
-    private String group;
-
     private MessageModule messageModule;
     private GroupModule groupModule;
-
-
     private ArrayList<ActionListener> listeners;
 
     public Middleware(String[] args) {
@@ -40,8 +37,23 @@ public class Middleware {
         try {
             ClientCommandLine cli = new ClientCommandLine(args);
             this.groupModule = new GroupModule(cli.nameserverAdress, Integer.parseInt(cli.nameserverPort), cli.nickName);
-            this.messageModule = new MessageModule(this.groupModule.getCommunicationAPI());
-
+            this.messageModule = new MessageModule(this.groupModule.getCommunicationAPI(), ContainerType.Unordered);
+            this.messageModule.registerListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    if(actionEvent.getActionCommand().equals("SystemMessage")){
+                        AbstractMessage m = messageModule.fetchSystemMessage();
+                        if(m.getClass() == JoinMessage.class){
+                            ComModuleInterface com = ((JoinMessage) m).getProxy();
+                            if(groupModule.addMember(com)){
+                                messageModule.send(com, groupModule.getProxyList());
+                            }
+                        }else if(m.getClass() == ElectionMessage.class){
+                            //TODO :: SOMETHING
+                        }
+                    }
+                }
+            });
         } catch (ParseException e) {
             Debug.getDebug().log(e);
         } catch (RemoteException e) {
@@ -50,15 +62,16 @@ public class Middleware {
     }
 
     public void registerActionListener(ActionListener e){
-        this.listeners.add(0, e);
+        messageModule.registerListener(e);
     }
-
 
     /* Group Module */
 
     public void joinGroup(String group) {
         try {
-            this.groupModule.joinGroup(group);
+            ArrayList<ComModuleInterface> leader = new ArrayList<>();
+            leader.add(this.groupModule.joinGroup(group));
+            messageModule.send(groupModule.getCommunicationAPI(), leader);
         } catch (RemoteException e) {
             Debug.getDebug().log(e);
         }
@@ -86,28 +99,13 @@ public class Middleware {
 
     }
 
-
-
-
-    /* Message Module */
-
-    public void sendMessage(String m) throws IOException {
-
+    /* Message module */
+    public void send(String text){
+        messageModule.send(text, groupModule.getProxyList());
     }
 
-    public <T extends AbstractMessage> void getMessage(){
-        AbstractMessage m = this.messageModule.fetchMessage();
-        switch(m.getCode()) {
-            case 1:
-                ElectionMessage em = (ElectionMessage) m;
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            default:
-                Debug.getDebug().log("Not supported code: " + m.getCode());
-        }
+    public String receive(){
+        return messageModule.fetchTextMessage().getMessage();
     }
 
     public void addMessageListener(ActionListener e) {

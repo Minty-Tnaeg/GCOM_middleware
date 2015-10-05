@@ -1,10 +1,9 @@
 package se.umu.cs._5dv147_proj.groupmanagement.module;
 
 import remote.interfaces.ComModuleInterface;
-import se.umu.cs._5dv147_proj.communication.api.CommunicationAPI;
+import se.umu.cs._5dv147_proj.communication.api.ReceiveProxy;
 
 
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -19,7 +18,7 @@ import java.util.ArrayList;
  */
 public class GroupModule {
     private ComModuleInterface leader;
-    private CommunicationAPI com;
+    private ReceiveProxy com;
     private ArrayList<ComModuleInterface> proxyList;
     private NameServerCom ns;
 
@@ -35,7 +34,7 @@ public class GroupModule {
      */
     public GroupModule(String nameServerAddress, int port, String nickName) throws RemoteException {
         this.proxyList = new ArrayList<>();
-        this.com = new CommunicationAPI(nickName);
+        this.com = new ReceiveProxy(nickName);
         this.proxyList.add((ComModuleInterface) UnicastRemoteObject.exportObject(this.com, 0));
         ns = new NameServerCom(nameServerAddress, port, this.proxyList.get(0));
     }
@@ -46,8 +45,9 @@ public class GroupModule {
      * @throws RemoteException
      *
      */
-    public void joinGroup(String groupName) throws RemoteException {
+    public ComModuleInterface joinGroup(String groupName) throws RemoteException {
         this.leader = ns.joinGroup(groupName);
+        return this.leader;
     }
 
     /**
@@ -83,15 +83,19 @@ public class GroupModule {
     /**
      * @param newMember the new member.
      */
-    public void addMember(ComModuleInterface newMember) {
-        this.proxyList.add(newMember);
+    public boolean addMember(ComModuleInterface newMember) {
+        if(!this.proxyList.contains(newMember)){
+            this.proxyList.add(newMember);
+            return true;
+        }
+        return false;
     }
 
     /**
      * Get created com module implementation.
      * @return middleware proxy.
      */
-    public CommunicationAPI getCommunicationAPI() {
+    public ReceiveProxy getCommunicationAPI() {
         return this.com;
     }
 
