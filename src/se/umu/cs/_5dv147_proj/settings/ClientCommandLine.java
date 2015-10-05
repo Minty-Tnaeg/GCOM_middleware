@@ -15,13 +15,13 @@ public class ClientCommandLine {
         this.cmd = new DefaultParser();
         Options comOpt = createOptionsObject();
         CommandLine com = this.cmd.parse(comOpt, args);
-        if(com.hasOption("d")){
-            debug = true;
+        if (com.hasOption("d")) {
+            Debug.getDebug().enableDebug();
         }
-        if(com.hasOption("a")){
+        if (com.hasOption("a")) {
             nameserverAdress = com.getOptionValue("a");
         }
-        if(com.hasOption("p")){
+        if (com.hasOption("p")) {
             nameserverPort = com.getOptionValue("p");
         }
     }
@@ -35,3 +35,5 @@ public class ClientCommandLine {
         return comOptions;
     }
 }
+
+

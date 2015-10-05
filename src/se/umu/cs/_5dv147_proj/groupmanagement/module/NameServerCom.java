@@ -1,4 +1,4 @@
-package se.umu.cs._5dv147_proj.network;
+package se.umu.cs._5dv147_proj.groupmanagement.module;
 
 
 import remote.interfaces.ComModuleInterface;
