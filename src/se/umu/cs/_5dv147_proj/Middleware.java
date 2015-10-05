@@ -4,9 +4,10 @@ import org.apache.commons.cli.ParseException;
 
 import remote.interfaces.ComModuleInterface;
 
+import remote.objects.AbstractMessage;
 import se.umu.cs._5dv147_proj.groupmanagement.module.GroupModule;
 import se.umu.cs._5dv147_proj.message.module.MessageModule;
-import se.umu.cs._5dv147_proj.message.type.AbstractMessage;
+
 import se.umu.cs._5dv147_proj.message.type.ElectionMessage;
 import se.umu.cs._5dv147_proj.settings.*;
 
@@ -42,9 +43,9 @@ public class Middleware {
             this.groupModule = new GroupModule(cli.nameserverAdress, Integer.parseInt(cli.nameserverPort), cli.nickName);
 
         } catch (ParseException e) {
-            e.printStackTrace();
+            Debug.getDebug().log(e);
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Debug.getDebug().log(e);
         }
     }
 

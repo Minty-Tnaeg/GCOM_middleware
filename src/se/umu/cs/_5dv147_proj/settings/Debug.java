@@ -32,11 +32,13 @@ public class Debug {
         }
 
         public void log(String message) {
-            System.err.println("Debug: " + message);
+            if (this.isEnabled) {
+                System.err.println("Debug: " + message);
+            }
         }
 
         public void log(Exception e) {
-            System.err.println("Exception: " + e.getMessage());
+            log("Exception: " + e.getMessage());
         }
 
 

@@ -1,6 +1,7 @@
 package se.umu.cs._5dv147_proj.message.module;
 
-import se.umu.cs._5dv147_proj.message.type.AbstractMessage;
+
+import remote.objects.AbstractMessage;
 import se.umu.cs._5dv147_proj.message.type.ElectionMessage;
 import se.umu.cs._5dv147_proj.message.type.JoinMessage;
 import se.umu.cs._5dv147_proj.message.type.TextMessage;
