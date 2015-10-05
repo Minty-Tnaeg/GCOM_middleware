@@ -6,17 +6,15 @@ import remote.objects.AbstractContainer;
 import remote.objects.AbstractMessage;
 import se.umu.cs._5dv147_proj.communication.api.CommunicationAPI;
 import se.umu.cs._5dv147_proj.communication.module.CommunicationModule;
-import se.umu.cs._5dv147_proj.message.type.ElectionMessage;
+import se.umu.cs._5dv147_proj.message.container.CausalContainer;
+import se.umu.cs._5dv147_proj.message.container.ContainerType;
+import se.umu.cs._5dv147_proj.message.container.UnorderedContainer;
 import se.umu.cs._5dv147_proj.message.type.JoinMessage;
-import se.umu.cs._5dv147_proj.message.type.TextMessage;
-import se.umu.cs._5dv147_proj.settings.Debug;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.PriorityQueue;
 import java.util.UUID;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -29,8 +27,9 @@ public class MessageModule {
     private PriorityBlockingQueue<AbstractContainer> incMessageQueue;
     private PriorityBlockingQueue<AbstractContainer> holdBackQueue;
     private ArrayList<ActionListener> listeners;
+    private ContainerType type;
 
-    public MessageModule(CommunicationAPI comAPI) {
+    public MessageModule(CommunicationAPI comAPI, ContainerType containerType) {
         this.comMod = new CommunicationModule(this, comAPI);
         this.incMessageQueue = new PriorityBlockingQueue<>();
         this.holdBackQueue = new PriorityBlockingQueue<>();
@@ -63,6 +62,14 @@ public class MessageModule {
 
     public void send(ComModuleInterface newMember,  ArrayList<ComModuleInterface> proxys){
         JoinMessage message = new JoinMessage(1);
+        AbstractContainer container;
+
+        if(type == ContainerType.Causal){
+            container = new CausalContainer(message);
+        }else if(type == ContainerType.Unordered){
+            container = new UnorderedContainer(message);
+        }
+
         //comMod.send(THING);
     }
 

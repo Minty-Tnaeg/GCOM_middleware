@@ -6,17 +6,19 @@ import remote.objects.AbstractMessage;
  * Created by c10mjn on 04/10/15.
  */
 public class ElectionMessage extends AbstractMessage {
+    private int code;
 
     public ElectionMessage(int code) {
-        super(code);
+        super();
+        this.code = code;
     }
 
     public int getCode() {
         System.err.println("TJA från elaction");
-        return super.getCode();
+        return code;
     }
 
-    public void method(int i) {
+    public void method() {
 
     }
 }
