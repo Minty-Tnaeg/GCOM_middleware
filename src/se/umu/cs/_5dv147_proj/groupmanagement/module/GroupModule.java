@@ -40,9 +40,6 @@ public class GroupModule {
         ns = new NameServerCom(nameServerAddress, port, this.proxyList.get(0));
     }
 
-    /*********************Name server***********************/
-
-
     /**
      *
      * @param groupName group user whishes to join.
@@ -74,7 +71,6 @@ public class GroupModule {
     }
 
 
-    /************************ Group Module *******************/
 
     /**
      *
@@ -97,6 +93,15 @@ public class GroupModule {
      */
     public CommunicationAPI getCommunicationAPI() {
         return this.com;
+    }
+
+
+    /**
+     *
+     * @param member member to remove.
+     */
+    public void removeMember(ComModuleInterface member) {
+        this.proxyList.remove(member);
     }
 
 
