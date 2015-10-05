@@ -40,7 +40,7 @@ public class Middleware {
         try {
             ClientCommandLine cli = new ClientCommandLine(args);
             this.groupModule = new GroupModule(cli.nameserverAdress, Integer.parseInt(cli.nameserverPort), cli.nickName);
-            this.messageModule = new MessageModule(this.groupModule.getComAPI());
+            this.messageModule = new MessageModule(this.groupModule.getCommunicationAPI());
 
         } catch (ParseException e) {
             Debug.getDebug().log(e);
@@ -92,7 +92,7 @@ public class Middleware {
     /* Message Module */
 
     public void sendMessage(String m) throws IOException {
-        this.messageModule.constructMessage(1);
+
     }
 
     public <T extends AbstractMessage> void getMessage(){
@@ -113,7 +113,4 @@ public class Middleware {
     public void addMessageListener(ActionListener e) {
         this.messageModule.registerListener(e);
     }
-
-
-
 }

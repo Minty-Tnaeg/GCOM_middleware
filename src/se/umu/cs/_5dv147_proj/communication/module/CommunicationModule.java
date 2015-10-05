@@ -1,6 +1,7 @@
 package se.umu.cs._5dv147_proj.communication.module;
 
 import remote.objects.AbstractMessage;
+import se.umu.cs._5dv147_proj.communication.api.CommunicationAPI;
 import se.umu.cs._5dv147_proj.message.module.MessageModule;
 
 
@@ -10,7 +11,7 @@ import se.umu.cs._5dv147_proj.message.module.MessageModule;
 public class CommunicationModule {
     private MessageModule mm;
 
-    public CommunicationModule(MessageModule m) {
+    public CommunicationModule(MessageModule m, CommunicationAPI comAPI) {
         this.mm = m;
 
     }

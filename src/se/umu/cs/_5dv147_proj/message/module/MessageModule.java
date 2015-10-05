@@ -62,10 +62,12 @@ public class MessageModule {
     }
 
     public void send(ComModuleInterface newMember,  ArrayList<ComModuleInterface> proxys){
-
+        JoinMessage message = new JoinMessage(1);
+        //comMod.send(THING);
     }
 
     public void send(String textMessage, ArrayList<ComModuleInterface> proxys){
 
+        //comMod.send(THING);
     }
 }
