@@ -12,6 +12,7 @@ import se.umu.cs._5dv147_proj.message.container.ContainerType;
 import se.umu.cs._5dv147_proj.message.container.UnorderedContainer;
 import se.umu.cs._5dv147_proj.message.type.JoinMessage;
 import se.umu.cs._5dv147_proj.message.type.TextMessage;
+import se.umu.cs._5dv147_proj.settings.Debug;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -58,7 +59,7 @@ public class MessageModule {
             if(container.isDeliverable(seenVector)){
                 this.incMessageQueue.add((TextMessage) message);
 
-                ActionEvent ae = new ActionEvent(null, 0, "TextMessage");
+                ActionEvent ae = new ActionEvent(message, 0, "TextMessage");
                 for(ActionListener al : listeners){
                     al.actionPerformed(ae);
                 }
@@ -69,8 +70,9 @@ public class MessageModule {
             }
 
         }else{
+
             systemMessageQueue.put(message);
-            ActionEvent ae = new ActionEvent(null, 0, "SystemMessage");
+            ActionEvent ae = new ActionEvent(message, 0, "SystemMessage");
             for(ActionListener al : listeners){
                 al.actionPerformed(ae);
             }
@@ -90,6 +92,7 @@ public class MessageModule {
         AbstractContainer container = createContainer(message);
 
         comMod.send(container, proxys);
+
     }
 
     public void send(String textMessage, ArrayList<ComModuleInterface> proxys){

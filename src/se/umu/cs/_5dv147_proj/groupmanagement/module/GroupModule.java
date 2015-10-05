@@ -2,6 +2,7 @@ package se.umu.cs._5dv147_proj.groupmanagement.module;
 
 import remote.interfaces.ComModuleInterface;
 import se.umu.cs._5dv147_proj.communication.api.ReceiveProxy;
+import se.umu.cs._5dv147_proj.settings.Debug;
 
 
 import java.rmi.RemoteException;
@@ -84,6 +85,7 @@ public class GroupModule {
      * @param newMember the new member.
      */
     public boolean addMember(ComModuleInterface newMember) {
+
         if(!this.proxyList.contains(newMember)){
             this.proxyList.add(newMember);
             return true;

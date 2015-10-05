@@ -1,5 +1,6 @@
 package se.umu.cs._5dv147_proj.message.type;
 
+import remote.interfaces.ComModuleInterface;
 import remote.objects.AbstractMessage;
 
 /**
@@ -14,6 +15,12 @@ public class TextMessage extends AbstractMessage {
     }
 
     public String getMessage(){
+        System.err.println(message);
         return this.message;
+    }
+
+    @Override
+    public int compareTo(ComModuleInterface o) {
+        return 0;
     }
 }

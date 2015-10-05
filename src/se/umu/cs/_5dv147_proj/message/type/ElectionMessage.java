@@ -1,5 +1,6 @@
 package se.umu.cs._5dv147_proj.message.type;
 
+import remote.interfaces.ComModuleInterface;
 import remote.objects.AbstractMessage;
 
 /**
@@ -20,5 +21,10 @@ public class ElectionMessage extends AbstractMessage {
 
     public void method() {
 
+    }
+
+    @Override
+    public int compareTo(ComModuleInterface o) {
+        return 0;
     }
 }

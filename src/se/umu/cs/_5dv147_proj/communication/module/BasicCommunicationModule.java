@@ -27,7 +27,9 @@ public class BasicCommunicationModule extends AbstractCommunication {
     public void send(AbstractContainer abstractContainer, ArrayList<ComModuleInterface> comModuleInterfaces) {
         for (ComModuleInterface comModuleInterface : comModuleInterfaces) {
             try {
+
                 comModuleInterface.receiveMessage(abstractContainer);
+
             } catch (RemoteException e) {
                 Debug.getDebug().log(e);
             }
@@ -37,6 +39,7 @@ public class BasicCommunicationModule extends AbstractCommunication {
 
     @Override
     public void receive(AbstractContainer abstractContainer) {
+
         mm.queueIncomingMessage(abstractContainer);
 
     }

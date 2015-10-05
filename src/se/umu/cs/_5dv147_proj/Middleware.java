@@ -11,6 +11,7 @@ import se.umu.cs._5dv147_proj.message.module.MessageModule;
 
 import se.umu.cs._5dv147_proj.message.type.ElectionMessage;
 import se.umu.cs._5dv147_proj.message.type.JoinMessage;
+import se.umu.cs._5dv147_proj.message.type.TextMessage;
 import se.umu.cs._5dv147_proj.settings.*;
 
 import java.awt.event.ActionEvent;
@@ -38,17 +39,28 @@ public class Middleware {
             ClientCommandLine cli = new ClientCommandLine(args);
             this.groupModule = new GroupModule(cli.nameserverAdress, Integer.parseInt(cli.nameserverPort), cli.nickName);
             this.messageModule = new MessageModule(this.groupModule.getCommunicationAPI(), ContainerType.Unordered);
+            this.listeners = new ArrayList<>();
             this.messageModule.registerListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
-                    if(actionEvent.getActionCommand().equals("SystemMessage")){
+                    System.err.println("Event: " + actionEvent.getSource() + "Cause:" + actionEvent.getActionCommand());
+                    if (actionEvent.getActionCommand().equals("SystemMessage")) {
                         AbstractMessage m = messageModule.fetchSystemMessage();
-                        if(m.getClass() == JoinMessage.class){
+                        if (m.getClass() == JoinMessage.class) {
                             ComModuleInterface com = ((JoinMessage) m).getProxy();
-                            if(groupModule.addMember(com)){
-                                messageModule.send(com, groupModule.getProxyList());
-                            }
-                        }else if(m.getClass() == ElectionMessage.class){
+                            addMember(com);
+
+                        } else if (m.getClass() == ElectionMessage.class) {
+                            //TODO :: SOMETHING
+                        }
+                    } else if(actionEvent.getActionCommand().equals("TextMessage")) {
+                        AbstractMessage m = messageModule.fetchTextMessage();
+                        if (m.getClass() == TextMessage.class) {
+                            TextMessage tm = (TextMessage) m;
+                            System.err.println(tm.getMessage());
+
+
+                        } else if (m.getClass() == ElectionMessage.class) {
                             //TODO :: SOMETHING
                         }
                     }
@@ -62,13 +74,15 @@ public class Middleware {
     }
 
     public void registerActionListener(ActionListener e){
-        messageModule.registerListener(e);
+        Debug.getDebug().log("Listner added " + e.toString());
+        this.listeners.add(e);
     }
 
     /* Group Module */
 
     public void joinGroup(String group) {
         try {
+
             ArrayList<ComModuleInterface> leader = new ArrayList<>();
             leader.add(this.groupModule.joinGroup(group));
             messageModule.send(groupModule.getCommunicationAPI(), leader);
@@ -92,7 +106,12 @@ public class Middleware {
     }
 
     public <T extends ComModuleInterface> void addMember(T member){
-        this.groupModule.addMember(member);
+
+        if(groupModule.addMember(member)){
+
+            messageModule.send(member, groupModule.getProxyList());
+        }
+
     }
 
     public <T extends ComModuleInterface> void memberLeft(T member){
