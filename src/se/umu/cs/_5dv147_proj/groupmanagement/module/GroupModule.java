@@ -19,9 +19,9 @@ public class GroupModule {
     private NameServerCom ns;
 
 
-    public GroupModule(String nameServerAddress, int port) throws RemoteException {
+    public GroupModule(String nameServerAddress, int port, String nickName) throws RemoteException {
         this.proxyList = new ArrayList<>();
-        this.com = new ComModuleImp();
+        this.com = new ComModuleImp(nickName);
         this.proxyList.add((ComModuleInterface) UnicastRemoteObject.exportObject(this.com, 0));
 
 

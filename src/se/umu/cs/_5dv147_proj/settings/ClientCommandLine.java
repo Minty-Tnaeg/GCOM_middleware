@@ -10,6 +10,7 @@ public class ClientCommandLine {
     public boolean debug = false;
     public String nameserverAdress;
     public String nameserverPort;
+    public String nickName;
 
     public ClientCommandLine(String[] args) throws ParseException {
         this.cmd = new DefaultParser();
@@ -24,6 +25,11 @@ public class ClientCommandLine {
         if (com.hasOption("p")) {
             nameserverPort = com.getOptionValue("p");
         }
+        if(com.hasOption("u")){
+            nickName = com.getOptionValue("u");
+        }else{
+            nickName = "Unknown user";
+        }
     }
 
     private static Options createOptionsObject() {
@@ -31,6 +37,7 @@ public class ClientCommandLine {
         comOptions.addOption("d", "debug", false, "Enable debug mode");
         comOptions.addOption("a", "adress", true, "Nameserver Adress");
         comOptions.addOption("p", "port", true, "Nameserver port");
+        comOptions.addOption("u", "username", true, "User nickname");
         // addOptions(flag, shortDesc, hasArg, longDesc);
         return comOptions;
     }

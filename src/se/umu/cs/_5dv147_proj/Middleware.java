@@ -39,7 +39,7 @@ public class Middleware {
         try {
             ClientCommandLine cli = new ClientCommandLine(args);
             this.messageModule = new MessageModule();
-            this.groupModule = new GroupModule(cli.nameserverAdress, Integer.parseInt(cli.nameserverPort));
+            this.groupModule = new GroupModule(cli.nameserverAdress, Integer.parseInt(cli.nameserverPort), cli.nickName);
 
         } catch (ParseException e) {
             e.printStackTrace();
