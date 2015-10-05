@@ -1,6 +1,7 @@
 package se.umu.cs._5dv147_proj.communication.api;
 
 import remote.interfaces.ComModuleInterface;
+import remote.objects.AbstractContainer;
 import se.umu.cs._5dv147_proj.communication.module.CommunicationModule;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class CommunicationAPI implements ComModuleInterface{
 
     public void sendMessage(AbstractContainer message, ComModuleInterface target) throws IOException {
         try {
-            target.receiveMessage(m);
+            target.receiveMessage(message);
         } catch (RemoteException e) {
             throw new IOException(e);
         }
