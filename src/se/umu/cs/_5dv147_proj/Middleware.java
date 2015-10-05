@@ -40,8 +40,7 @@ public class Middleware {
         try {
             ClientCommandLine cli = new ClientCommandLine(args);
             this.groupModule = new GroupModule(cli.nameserverAdress, Integer.parseInt(cli.nameserverPort), cli.nickName);
-            this.messageModule = new MessageModule();
-
+            this.messageModule = new MessageModule(this.groupModule.getComAPI());
 
         } catch (ParseException e) {
             Debug.getDebug().log(e);
