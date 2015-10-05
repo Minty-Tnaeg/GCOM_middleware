@@ -14,6 +14,10 @@ public class JoinMessage extends AbstractMessage {
         this.com = com;
     }
 
+    public ComModuleInterface getProxy(){
+        return this.com;
+    }
+
     @Override
     public void method() {
 

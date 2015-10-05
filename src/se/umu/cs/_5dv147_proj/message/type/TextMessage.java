@@ -13,6 +13,10 @@ public class TextMessage extends AbstractMessage {
         this.message = message;
     }
 
+    public String getMessage(){
+        return this.message;
+    }
+
     @Override
     public void method() {
 
