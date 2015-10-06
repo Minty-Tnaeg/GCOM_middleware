@@ -19,12 +19,5 @@ public class ElectionMessage extends AbstractMessage {
         return code;
     }
 
-    public void method() {
 
-    }
-
-    @Override
-    public int compareTo(ComModuleInterface o) {
-        return 0;
-    }
 }

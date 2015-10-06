@@ -85,8 +85,9 @@ public class GroupModule {
      * @param newMember the new member.
      */
     public boolean addMember(ComModuleInterface newMember) {
-
+        Debug.getDebug().log("Add member 1");
         if(!this.proxyList.contains(newMember)){
+            Debug.getDebug().log("Add member 2");
             this.proxyList.add(newMember);
             return true;
         }

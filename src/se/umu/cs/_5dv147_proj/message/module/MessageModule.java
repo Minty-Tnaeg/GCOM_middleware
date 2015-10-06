@@ -6,20 +6,17 @@ import remote.objects.AbstractContainer;
 import remote.objects.AbstractMessage;
 import se.umu.cs._5dv147_proj.communication.api.ReceiveProxy;
 import se.umu.cs._5dv147_proj.communication.module.BasicCommunicationModule;
-
 import se.umu.cs._5dv147_proj.message.container.CausalContainer;
 import se.umu.cs._5dv147_proj.message.container.ContainerType;
 import se.umu.cs._5dv147_proj.message.container.UnorderedContainer;
 import se.umu.cs._5dv147_proj.message.type.JoinMessage;
+import se.umu.cs._5dv147_proj.message.type.ReturnJoinMessage;
 import se.umu.cs._5dv147_proj.message.type.TextMessage;
 import se.umu.cs._5dv147_proj.settings.Debug;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.*;
 
 /**
  * Created by c10mjn on 04/10/15.
@@ -27,9 +24,9 @@ import java.util.concurrent.PriorityBlockingQueue;
 public class MessageModule {
     private HashMap<UUID, Integer> seenVector;
     private BasicCommunicationModule comMod;
-    private PriorityBlockingQueue<TextMessage> incMessageQueue;
-    private PriorityBlockingQueue<AbstractContainer> holdBackQueue;
-    private PriorityBlockingQueue<AbstractMessage> systemMessageQueue;
+    private List<TextMessage> incMessageQueue;
+    private List<AbstractContainer> holdBackQueue;
+    private List<AbstractMessage> systemMessageQueue;
     private ArrayList<ActionListener> listeners;
     private ContainerType containerType;
 
@@ -37,19 +34,26 @@ public class MessageModule {
         this.comMod = new BasicCommunicationModule(this, comAPI);
         this.comMod = new BasicCommunicationModule(this, comAPI);
         this.seenVector = new HashMap<>();
-        this.incMessageQueue = new PriorityBlockingQueue<>();
-        this.holdBackQueue = new PriorityBlockingQueue<>();
-        this.systemMessageQueue = new PriorityBlockingQueue<>();
+        this.incMessageQueue = Collections.synchronizedList(new LinkedList<TextMessage>());
+        this.holdBackQueue = Collections.synchronizedList(new LinkedList<AbstractContainer>());
+        this.systemMessageQueue = Collections.synchronizedList(new LinkedList<AbstractMessage>());
         this.listeners = new ArrayList<>();
         this.containerType = containerType;
     }
 
     public TextMessage fetchTextMessage() {
-        return this.incMessageQueue.poll();
+        Debug.getDebug().log("incMessageQueueLength at fetch: " + this.incMessageQueue.size());
+        TextMessage m = this.incMessageQueue.get(0);
+        this.incMessageQueue.remove(0);
+        return m;
     }
 
     public AbstractMessage fetchSystemMessage() {
-        return this.systemMessageQueue.poll();
+        AbstractMessage m = this.systemMessageQueue.get(0);
+        this.systemMessageQueue.remove(0);
+        return m;
+
+
     }
 
     public void queueIncomingMessage(AbstractContainer container) {
@@ -58,6 +62,7 @@ public class MessageModule {
         if(message.getClass() == TextMessage.class){
             if(container.isDeliverable(seenVector)){
                 this.incMessageQueue.add((TextMessage) message);
+                Debug.getDebug().log("incMessageQueueLength after add: " + this.incMessageQueue.size());
 
                 ActionEvent ae = new ActionEvent(message, 0, "TextMessage");
                 for(ActionListener al : listeners){
@@ -66,12 +71,11 @@ public class MessageModule {
                 checkHoldBackQueue();
 
             }else if(!container.isRepeat(seenVector)){
-                this.holdBackQueue.put(container);
+                this.holdBackQueue.add(container);
             }
 
         }else{
-
-            systemMessageQueue.put(message);
+            systemMessageQueue.add(message);
             ActionEvent ae = new ActionEvent(message, 0, "SystemMessage");
             for(ActionListener al : listeners){
                 al.actionPerformed(ae);
@@ -85,6 +89,14 @@ public class MessageModule {
 
     public void registerListener(ActionListener al) {
         listeners.add(al);
+    }
+
+    public void send(ArrayList<ComModuleInterface> members, ComModuleInterface proxy){
+        ReturnJoinMessage rjm = new ReturnJoinMessage(members);
+        AbstractContainer container = createContainer(rjm);
+        ArrayList<ComModuleInterface> single = new ArrayList<>();
+        single.add(proxy);
+        comMod.send(container, single);
     }
 
     public void send(ComModuleInterface newMember,  ArrayList<ComModuleInterface> proxys){

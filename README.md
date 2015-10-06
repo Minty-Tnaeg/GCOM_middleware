@@ -37,7 +37,7 @@ Re-join = New join
 Group creator specifies communication methods. For that group.
 
 ### TODO:
-- Non-reliable multicast [ ]
+- Non-reliable multicast [X]
 - Reliable multicast [ ]
 - Tree-based reliable multicast [ ]
   - Reliable [ ]
@@ -54,4 +54,4 @@ Messages must be shown in order but must not arrive in that order.
 - Causal [ ]
 - Total [ ]
 - Causal-Total [ ]
-- Unordered [ ]
+- Unordered [X]

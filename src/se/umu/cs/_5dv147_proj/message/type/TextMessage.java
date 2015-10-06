@@ -19,8 +19,4 @@ public class TextMessage extends AbstractMessage {
         return this.message;
     }
 
-    @Override
-    public int compareTo(ComModuleInterface o) {
-        return 0;
-    }
 }

@@ -20,12 +20,5 @@ public class JoinMessage extends AbstractMessage{
         return this.com;
     }
 
-    @Override
-    public int compareTo(ComModuleInterface o) {
-        if (this.com.equals(o)) {
-            return 0;
-        } else {
-            return -1;
-        }
-    }
+
 }
