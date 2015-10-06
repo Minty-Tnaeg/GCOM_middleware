@@ -11,6 +11,7 @@ import java.io.Serializable;
 public class JoinMessage extends AbstractMessage{
     private ComModuleInterface com;
 
+
     public JoinMessage(ComModuleInterface com) {
         super();
         this.com = com;

@@ -22,23 +22,29 @@ import java.util.*;
  * Created by c10mjn on 04/10/15.
  */
 public class MessageModule {
+    private String nickName;
     private HashMap<UUID, Integer> seenVector;
     private BasicCommunicationModule comMod;
     private List<TextMessage> incMessageQueue;
     private List<AbstractContainer> holdBackQueue;
-    private List<AbstractMessage> systemMessageQueue;
+    private List<AbstractContainer> systemMessageQueue;
     private ArrayList<ActionListener> listeners;
     private ContainerType containerType;
+    private UUID middlewarePID;
 
-    public MessageModule(ReceiveProxy comAPI, ContainerType containerType) {
+    public MessageModule(ReceiveProxy comAPI, ContainerType containerType,
+                         String nickName) {
+        this.nickName = nickName;
         this.comMod = new BasicCommunicationModule(this, comAPI);
         this.comMod = new BasicCommunicationModule(this, comAPI);
         this.seenVector = new HashMap<>();
         this.incMessageQueue = Collections.synchronizedList(new LinkedList<TextMessage>());
         this.holdBackQueue = Collections.synchronizedList(new LinkedList<AbstractContainer>());
-        this.systemMessageQueue = Collections.synchronizedList(new LinkedList<AbstractMessage>());
+        this.systemMessageQueue = Collections.synchronizedList(new LinkedList<AbstractContainer>());
         this.listeners = new ArrayList<>();
         this.containerType = containerType;
+        this.middlewarePID = UUID.randomUUID();
+        this.seenVector.put(this.middlewarePID, 0);
     }
 
     public TextMessage fetchTextMessage() {
@@ -48,19 +54,18 @@ public class MessageModule {
         return m;
     }
 
-    public AbstractMessage fetchSystemMessage() {
-        AbstractMessage m = this.systemMessageQueue.get(0);
+    public AbstractContainer fetchSystemMessage() {
+        AbstractContainer m = this.systemMessageQueue.get(0);
         this.systemMessageQueue.remove(0);
         return m;
-
-
     }
 
     public void queueIncomingMessage(AbstractContainer container) {
         AbstractMessage message = container.getMessage();
 
         if(message.getClass() == TextMessage.class){
-            if(container.isDeliverable(seenVector)){
+            if(container.isDeliverable(seenVector, this.middlewarePID)){
+                seenVector.put(container.getPid(), seenVector.get(container.getPid()) == null ? 0 : seenVector.get(container.getPid())+1);
                 this.incMessageQueue.add((TextMessage) message);
                 Debug.getDebug().log("incMessageQueueLength after add: " + this.incMessageQueue.size());
 
@@ -70,13 +75,14 @@ public class MessageModule {
                 }
                 checkHoldBackQueue();
 
-            }else if(!container.isRepeat(seenVector)){
+            }else if(!container.isRepeat(seenVector, this.middlewarePID)){
                 this.holdBackQueue.add(container);
             }
 
         }else{
-            systemMessageQueue.add(message);
-            ActionEvent ae = new ActionEvent(message, 0, "SystemMessage");
+
+            systemMessageQueue.add(container);
+            ActionEvent ae = new ActionEvent(container, 0, "SystemMessage");
             for(ActionListener al : listeners){
                 al.actionPerformed(ae);
             }
@@ -84,7 +90,21 @@ public class MessageModule {
     }
 
     private void checkHoldBackQueue() {
-        //TODO :: CHECK HOLDBACK QUEUE FOR NEW MESSAGES ABLE TO DELIVER
+        for (AbstractContainer container : holdBackQueue) {
+            if(container.isDeliverable(this.seenVector, this.middlewarePID)) {
+                seenVector.put(container.getPid(), seenVector.get(container.getPid()) == null ? 0 : seenVector.get(container.getPid())+1);
+                this.incMessageQueue.add((TextMessage) container.getMessage());
+                this.holdBackQueue.remove(container);
+
+                ActionEvent ae = new ActionEvent(container.getMessage(), 0, "TextMessage");
+                for(ActionListener al : listeners){
+                    al.actionPerformed(ae);
+                }
+
+                checkHoldBackQueue();
+                return;
+            }
+        }
     }
 
     public void registerListener(ActionListener al) {
@@ -108,7 +128,7 @@ public class MessageModule {
     }
 
     public void send(String textMessage, ArrayList<ComModuleInterface> proxys){
-        TextMessage message = new TextMessage(textMessage);
+        TextMessage message = new TextMessage(textMessage, this.nickName);
         AbstractContainer container = createContainer(message);
 
         comMod.send(container, proxys);
@@ -117,11 +137,12 @@ public class MessageModule {
     private AbstractContainer createContainer(AbstractMessage message) {
         switch(containerType) {
             case Causal:
-                return new CausalContainer(message);
+                this.seenVector.put(this.middlewarePID, this.seenVector.get(this.middlewarePID)+1);
+                return new CausalContainer(message, this.seenVector, this.middlewarePID);
             case Unordered:
-                return new UnorderedContainer(message);
+                return new UnorderedContainer(message, this.middlewarePID);
             default:
-                return new UnorderedContainer(message);
+                return new UnorderedContainer(message,this.middlewarePID);
         }
     }
 }

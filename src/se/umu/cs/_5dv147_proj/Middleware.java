@@ -4,6 +4,7 @@ import org.apache.commons.cli.ParseException;
 
 import remote.interfaces.ComModuleInterface;
 
+import remote.objects.AbstractContainer;
 import remote.objects.AbstractMessage;
 import se.umu.cs._5dv147_proj.groupmanagement.module.GroupModule;
 import se.umu.cs._5dv147_proj.message.container.ContainerType;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 public class Middleware {
     private MessageModule messageModule;
     private GroupModule groupModule;
+    private ArrayList<ActionListener> listeners;
 
     public Middleware(String[] args) {
         if (System.getSecurityManager() == null) {
@@ -34,25 +36,33 @@ public class Middleware {
 
         try {
             ClientCommandLine cli = new ClientCommandLine(args);
+            this.listeners = new ArrayList<>();
             this.groupModule = new GroupModule(cli.nameserverAdress, Integer.parseInt(cli.nameserverPort), cli.nickName);
-            this.messageModule = new MessageModule(this.groupModule.getCommunicationAPI(), ContainerType.Unordered);
-            this.messageModule.registerListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent actionEvent) {
-                    System.err.println("Event: " + actionEvent.getSource() + "Cause:" + actionEvent.getActionCommand());
-                    if (actionEvent.getActionCommand().equals("SystemMessage")) {
-                        AbstractMessage m = messageModule.fetchSystemMessage();
-                        if (m.getClass() == JoinMessage.class) {
-                            ComModuleInterface com = ((JoinMessage) m).getProxy();
-                            handleJoin(com);
+            this.messageModule = new MessageModule(this.groupModule.getCommunicationAPI(), ContainerType.Causal, cli.nickName);
+            this.messageModule.registerListener(actionEvent -> {
+                System.err.println("Event: " + actionEvent.getSource() + "Cause:" + actionEvent.getActionCommand());
+                if (actionEvent.getActionCommand().equals("SystemMessage")) {
+                    AbstractContainer c = messageModule.fetchSystemMessage();
+                    AbstractMessage m = c.getMessage();
+                    if (m.getClass() == JoinMessage.class) {
 
-                        } else if (m.getClass() == ElectionMessage.class) {
-                            //TODO :: SOMETHING
-                        } else if (m.getClass() == ReturnJoinMessage.class) {
-                            ArrayList<ComModuleInterface> proxyList = ((ReturnJoinMessage) m).getComs();
-                            proxyList.forEach(groupModule::addMember);
+                        ComModuleInterface com = ((JoinMessage) m).getProxy();
+                        if(handleJoin(com)) {
+
+                            ActionEvent ae = new ActionEvent(m, 0, "UpdateUsers");
+                            for (ActionListener listener : listeners) {
+                                listener.actionPerformed(ae);
+                            }
                         }
-
+                    } else if (m.getClass() == ReturnJoinMessage.class) {
+                        ArrayList<ComModuleInterface> proxyList = ((ReturnJoinMessage) m).getComs();
+                        proxyList.forEach(this.groupModule::addMember);
+                        ActionEvent ae = new ActionEvent(m, 0, "UpdateUsers");
+                        for (ActionListener listener : listeners) {
+                            listener.actionPerformed(ae);
+                        }
+                    } else if (m.getClass() == ElectionMessage.class) {
+                        //TODO :: SOMETHING
                     }
 
                 }
@@ -65,6 +75,7 @@ public class Middleware {
     }
 
     public void registerActionListener(ActionListener e){
+        this.listeners.add(e);
         this.messageModule.registerListener(e);
     }
 
@@ -72,7 +83,6 @@ public class Middleware {
 
     public void joinGroup(String group) {
         try {
-
             ArrayList<ComModuleInterface> leader = new ArrayList<>();
             leader.add(this.groupModule.joinGroup(group));
             messageModule.send(groupModule.getCommunicationAPI(), leader);
@@ -85,6 +95,10 @@ public class Middleware {
         return this.groupModule.getProxyList();
     }
 
+    public ArrayList<String> getNameList(){
+        return this.groupModule.getNameList();
+    }
+
     public String[][] getGroupList() {
         try {
             return this.groupModule.getGroups();
@@ -92,15 +106,15 @@ public class Middleware {
             Debug.getDebug().log(e);
         }
         return null;
-
     }
 
-    public <T extends ComModuleInterface> void handleJoin(T member){
+    public <T extends ComModuleInterface> boolean handleJoin(T member){
         if(groupModule.addMember(member)){
             messageModule.send(member, groupModule.getProxyList());
             messageModule.send(groupModule.getProxyList(), member);
+            return true;
         }
-
+        return false;
     }
 
     public <T extends ComModuleInterface> void memberLeft(T member){

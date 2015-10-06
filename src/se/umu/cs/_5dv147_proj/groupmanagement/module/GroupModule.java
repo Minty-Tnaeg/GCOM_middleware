@@ -8,6 +8,7 @@ import se.umu.cs._5dv147_proj.settings.Debug;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by c10mjn on 2015-10-05.
@@ -20,7 +21,7 @@ import java.util.ArrayList;
 public class GroupModule {
     private ComModuleInterface leader;
     private ReceiveProxy com;
-    private ArrayList<ComModuleInterface> proxyList;
+    private HashMap<ComModuleInterface, String> proxyList;
     private NameServerCom ns;
 
 
@@ -34,10 +35,11 @@ public class GroupModule {
      * Constructs the group module.
      */
     public GroupModule(String nameServerAddress, int port, String nickName) throws RemoteException {
-        this.proxyList = new ArrayList<>();
+        this.proxyList = new HashMap<>();
         this.com = new ReceiveProxy(nickName);
-        this.proxyList.add((ComModuleInterface) UnicastRemoteObject.exportObject(this.com, 0));
-        ns = new NameServerCom(nameServerAddress, port, this.proxyList.get(0));
+        ComModuleInterface stub = (ComModuleInterface) UnicastRemoteObject.exportObject(this.com, 0);
+        this.proxyList.put(stub, com.getNickName());
+        ns = new NameServerCom(nameServerAddress, port, stub);
     }
 
     /**
@@ -78,20 +80,28 @@ public class GroupModule {
      * @return List of all known members
      */
     public ArrayList<ComModuleInterface> getProxyList() {
-        return this.proxyList;
+        ArrayList<ComModuleInterface> proxys = new ArrayList<>();
+        proxys.addAll(this.proxyList.keySet());
+        return proxys;
+    }
+
+    public ArrayList<String> getNameList(){
+        ArrayList<String> names = new ArrayList<>();
+        names.addAll(this.proxyList.values());
+        return names;
     }
 
     /**
      * @param newMember the new member.
      */
     public boolean addMember(ComModuleInterface newMember) {
-        Debug.getDebug().log("Add member 1");
-        if(!this.proxyList.contains(newMember)){
-            Debug.getDebug().log("Add member 2");
-            this.proxyList.add(newMember);
-            return true;
+        String putValue;
+        try {
+            putValue = this.proxyList.put(newMember, newMember.getNickName());
+        } catch (RemoteException e) {
+            putValue = this.proxyList.put(newMember, "Unknown user");
         }
-        return false;
+        return (putValue == null);
     }
 
     /**

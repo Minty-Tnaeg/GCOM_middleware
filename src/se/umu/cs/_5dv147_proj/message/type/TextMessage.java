@@ -8,15 +8,18 @@ import remote.objects.AbstractMessage;
  */
 public class TextMessage extends AbstractMessage {
     private final String message;
+    private final long time;
+    private final String name;
 
-    public TextMessage(String message) {
+    public TextMessage(String message, String name) {
         super();
         this.message = message;
+        this.name = name;
+        time = System.currentTimeMillis();
     }
 
     public String getMessage(){
         System.err.println(message);
-        return this.message;
+        return "[" + String.format("%1$TT", time) + "] " + name + ": " + message;
     }
-
 }

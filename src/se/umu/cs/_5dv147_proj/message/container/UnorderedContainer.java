@@ -11,17 +11,17 @@ import java.util.UUID;
  * Created by c12slm on 2015-10-05.
  */
 public class UnorderedContainer extends AbstractContainer implements Serializable {
-    public UnorderedContainer(AbstractMessage message){
-        super(message);
+    public UnorderedContainer(AbstractMessage message, UUID pid){
+        super(message, pid);
     }
 
     @Override
-    public boolean isDeliverable(HashMap<UUID, Integer> hashMap) {
+    public boolean isDeliverable(HashMap<UUID, Integer> hashMap, UUID pid) {
         return true;
     }
 
     @Override
-    public boolean isRepeat(HashMap<UUID, Integer> hashMap) {
+    public boolean isRepeat(HashMap<UUID, Integer> hashMap , UUID pid) {
         return false;
     }
 }
