@@ -1,16 +1,17 @@
 package se.umu.cs._5dv147_proj.settings;
 
 import org.apache.commons.cli.*;
+import se.umu.cs._5dv147_proj.message.container.ContainerType;
 
 /**
  * Created by c10mjn on 19/09/15.
  */
 public class ClientCommandLine {
     private CommandLineParser cmd;
-    public boolean debug = false;
     public String nameserverAdress;
     public String nameserverPort;
     public String nickName;
+    public ContainerType containerType;
 
     public ClientCommandLine(String[] args) throws ParseException {
         this.cmd = new DefaultParser();
@@ -30,6 +31,16 @@ public class ClientCommandLine {
         }else{
             nickName = "Unknown user";
         }
+        if(com.hasOption("c")){
+            String c = com.getOptionValue("c");
+            if(c.equals("unordered")){
+                containerType = ContainerType.Unordered;
+            }else if(c.equals("causal")){
+                containerType = ContainerType.Causal;
+            }else{
+                containerType = ContainerType.Causal;
+            }
+        }
     }
 
     private static Options createOptionsObject() {
@@ -38,6 +49,7 @@ public class ClientCommandLine {
         comOptions.addOption("a", "adress", true, "Nameserver Adress");
         comOptions.addOption("p", "port", true, "Nameserver port");
         comOptions.addOption("u", "username", true, "User nickname");
+        comOptions.addOption("c", "container", true, "Container type");
         // addOptions(flag, shortDesc, hasArg, longDesc);
         return comOptions;
     }

@@ -2,10 +2,13 @@ package se.umu.cs._5dv147_proj.message.container;
 
 import remote.objects.AbstractContainer;
 import remote.objects.AbstractMessage;
+import se.umu.cs._5dv147_proj.message.type.JoinMessage;
+import se.umu.cs._5dv147_proj.message.type.TextMessage;
 import se.umu.cs._5dv147_proj.settings.Debug;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -78,4 +81,16 @@ public class CausalContainer extends AbstractContainer implements Serializable {
         return true;
     }
 
+    @Override
+    public String toString(){
+        String s = "[";
+
+        for (Map.Entry<UUID, Integer> entry : messageClock.entrySet()) {
+            s += "(" + Debug.getDebug().convertPid(entry.getKey()) + "," + entry.getValue() + ") , ";
+        }
+
+        s = s.substring(0, s.length()-3) +  "]";
+
+        return s;
+    }
 }

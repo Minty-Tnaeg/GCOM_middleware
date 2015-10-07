@@ -38,9 +38,9 @@ public class Middleware {
             ClientCommandLine cli = new ClientCommandLine(args);
             this.listeners = new ArrayList<>();
             this.groupModule = new GroupModule(cli.nameserverAdress, Integer.parseInt(cli.nameserverPort), cli.nickName);
-            this.messageModule = new MessageModule(this.groupModule.getCommunicationAPI(), ContainerType.Causal, cli.nickName);
+            this.messageModule = new MessageModule(this.groupModule.getCommunicationAPI(), cli.containerType, cli.nickName);
+
             this.messageModule.registerListener(actionEvent -> {
-                System.err.println("Event: " + actionEvent.getSource() + "Cause:" + actionEvent.getActionCommand());
                 if (actionEvent.getActionCommand().equals("SystemMessage")) {
                     AbstractContainer c = messageModule.fetchSystemMessage();
                     AbstractMessage m = c.getMessage();
@@ -48,7 +48,6 @@ public class Middleware {
 
                         ComModuleInterface com = ((JoinMessage) m).getProxy();
                         if(handleJoin(com)) {
-
                             ActionEvent ae = new ActionEvent(m, 0, "UpdateUsers");
                             for (ActionListener listener : listeners) {
                                 listener.actionPerformed(ae);
@@ -72,6 +71,15 @@ public class Middleware {
         } catch (RemoteException e) {
             Debug.getDebug().log(e);
         }
+    }
+
+    private <T extends ComModuleInterface> boolean handleJoin(T member){
+        if(groupModule.addMember(member)){
+            messageModule.send(member, groupModule.getProxyList());
+            messageModule.send(groupModule.getProxyList(), member);
+            return true;
+        }
+        return false;
     }
 
     public void registerActionListener(ActionListener e){
@@ -108,15 +116,6 @@ public class Middleware {
         return null;
     }
 
-    public <T extends ComModuleInterface> boolean handleJoin(T member){
-        if(groupModule.addMember(member)){
-            messageModule.send(member, groupModule.getProxyList());
-            messageModule.send(groupModule.getProxyList(), member);
-            return true;
-        }
-        return false;
-    }
-
     public <T extends ComModuleInterface> void memberLeft(T member){
 
     }
@@ -127,7 +126,7 @@ public class Middleware {
     }
 
     public String receive(){
-        return messageModule.fetchTextMessage().getMessage();
+        return messageModule.fetchTextMessage().toString();
     }
 
     public void addMessageListener(ActionListener e) {

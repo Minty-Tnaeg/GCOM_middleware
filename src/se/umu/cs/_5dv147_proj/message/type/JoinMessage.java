@@ -21,5 +21,4 @@ public class JoinMessage extends AbstractMessage{
         return this.com;
     }
 
-
 }

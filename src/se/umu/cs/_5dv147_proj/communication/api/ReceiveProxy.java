@@ -14,7 +14,6 @@ public class ReceiveProxy implements ComModuleInterface{
     private String nickName;
     private BasicCommunicationModule cm;
 
-
     public ReceiveProxy(String nickName) {
         this.nickName = nickName;
     }

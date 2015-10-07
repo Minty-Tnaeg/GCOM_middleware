@@ -38,17 +38,18 @@ public class MessageModule {
         this.comMod = new BasicCommunicationModule(this, comAPI);
         this.comMod = new BasicCommunicationModule(this, comAPI);
         this.seenVector = new HashMap<>();
-        this.incMessageQueue = Collections.synchronizedList(new LinkedList<TextMessage>());
-        this.holdBackQueue = Collections.synchronizedList(new LinkedList<AbstractContainer>());
-        this.systemMessageQueue = Collections.synchronizedList(new LinkedList<AbstractContainer>());
+        this.incMessageQueue = Collections.synchronizedList(new LinkedList<>());
+        this.holdBackQueue = Collections.synchronizedList(new LinkedList<>());
+        this.systemMessageQueue = Collections.synchronizedList(new LinkedList<>());
         this.listeners = new ArrayList<>();
         this.containerType = containerType;
         this.middlewarePID = UUID.randomUUID();
         this.seenVector.put(this.middlewarePID, 0);
+
+        Debug.getDebug().setHoldBackQueue(this.holdBackQueue);
     }
 
     public TextMessage fetchTextMessage() {
-        Debug.getDebug().log("incMessageQueueLength at fetch: " + this.incMessageQueue.size());
         TextMessage m = this.incMessageQueue.get(0);
         this.incMessageQueue.remove(0);
         return m;
@@ -65,11 +66,17 @@ public class MessageModule {
 
         if(message.getClass() == TextMessage.class){
             if(container.isDeliverable(seenVector, this.middlewarePID)){
+
                 if (!(container.getPid().equals(this.middlewarePID))) {
-                    seenVector.put(container.getPid(), seenVector.get(container.getPid()) == null ? 0 : seenVector.get(container.getPid()) + 1);
+                    if(seenVector.get(container.getPid()) == null){
+                        seenVector.put(container.getPid(), 1);
+                        Debug.getDebug().addPid(container.getPid(), ((TextMessage)container.getMessage()).getName());
+                    }else{
+                        seenVector.put(container.getPid(), seenVector.get(container.getPid()) + 1);
+                    }
                 }
+
                 this.incMessageQueue.add((TextMessage) message);
-                Debug.getDebug().log("incMessageQueueLength after add: " + this.incMessageQueue.size());
 
                 ActionEvent ae = new ActionEvent(message, 0, "TextMessage");
                 for(ActionListener al : listeners){
@@ -79,6 +86,10 @@ public class MessageModule {
 
             }else if(!container.isRepeat(seenVector, this.middlewarePID)){
                 this.holdBackQueue.add(container);
+                ActionEvent ae = new ActionEvent(message, 0, "holdBack");
+                for(ActionListener al : listeners){
+                    al.actionPerformed(ae);
+                }
             }
 
         }else{
@@ -92,19 +103,19 @@ public class MessageModule {
     }
 
     private void checkHoldBackQueue() {
-        for (AbstractContainer container : holdBackQueue) {
-            if(container.isDeliverable(this.seenVector, this.middlewarePID)) {
-                seenVector.put(container.getPid(), seenVector.get(container.getPid()) == null ? 0 : seenVector.get(container.getPid())+1);
+        for (int i = 0; i < holdBackQueue.size(); i++) {
+            AbstractContainer container = holdBackQueue.get(i);
+            if (container.isDeliverable(this.seenVector, this.middlewarePID)) {
+                seenVector.put(container.getPid(), seenVector.get(container.getPid()) == null ? 0 : seenVector.get(container.getPid()) + 1);
                 this.incMessageQueue.add((TextMessage) container.getMessage());
                 this.holdBackQueue.remove(container);
 
                 ActionEvent ae = new ActionEvent(container.getMessage(), 0, "TextMessage");
-                for(ActionListener al : listeners){
+                for (ActionListener al : listeners) {
                     al.actionPerformed(ae);
                 }
 
-                checkHoldBackQueue();
-                return;
+                i = 0;
             }
         }
     }
