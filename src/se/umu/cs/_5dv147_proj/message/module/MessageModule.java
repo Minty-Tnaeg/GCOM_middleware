@@ -65,7 +65,9 @@ public class MessageModule {
 
         if(message.getClass() == TextMessage.class){
             if(container.isDeliverable(seenVector, this.middlewarePID)){
-                seenVector.put(container.getPid(), seenVector.get(container.getPid()) == null ? 0 : seenVector.get(container.getPid())+1);
+                if (!(container.getPid().equals(this.middlewarePID))) {
+                    seenVector.put(container.getPid(), seenVector.get(container.getPid()) == null ? 0 : seenVector.get(container.getPid()) + 1);
+                }
                 this.incMessageQueue.add((TextMessage) message);
                 Debug.getDebug().log("incMessageQueueLength after add: " + this.incMessageQueue.size());
 
@@ -137,7 +139,9 @@ public class MessageModule {
     private AbstractContainer createContainer(AbstractMessage message) {
         switch(containerType) {
             case Causal:
-                this.seenVector.put(this.middlewarePID, this.seenVector.get(this.middlewarePID)+1);
+                if (message.getClass() == TextMessage.class) {
+                    this.seenVector.put(this.middlewarePID, this.seenVector.get(this.middlewarePID) + 1);
+                }
                 return new CausalContainer(message, this.seenVector, this.middlewarePID);
             case Unordered:
                 return new UnorderedContainer(message, this.middlewarePID);

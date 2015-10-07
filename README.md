@@ -7,11 +7,7 @@ Middleware for GCOM
 - Message ordering [ ]
 
 ## Group Management
-GCom needs to staticly or dynamicly track the members of the group
-
-Static: Group pre-defined, only members may join.
-All members need to join before message sending starts
-Must able to leave at any time(Due to crashes)
+GCom needs to dynamicly track the members of the group
 
 Dynamic: May join and leave whenever.
 Re-join = New join
@@ -19,9 +15,9 @@ Re-join = New join
 
 ###TODO:
 - Interface for:
-  - Create [ ]
+  - Create [X]
   - Remove [ ]
-  - Add member [ ]
+  - Add member [X]
   - Remove member [ ]
 - Error detection
   - Monitor group [ ]

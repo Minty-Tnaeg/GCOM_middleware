@@ -2,6 +2,7 @@ package se.umu.cs._5dv147_proj.message.container;
 
 import remote.objects.AbstractContainer;
 import remote.objects.AbstractMessage;
+import se.umu.cs._5dv147_proj.settings.Debug;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -32,18 +33,32 @@ public class CausalContainer extends AbstractContainer implements Serializable {
      */
     @Override
     public boolean isDeliverable(HashMap<UUID, Integer> referenceClock, UUID pid) {
+        int referenceValue = 0;
+        int messageValue = 0;
+        Debug.getDebug().log("UUID:" + super.getPid() + " Value: " + messageClock.get(super.getPid()));
+        Debug.getDebug().log("UUID:" + super.getPid() + " Value: " + referenceClock.get(super.getPid()));
+        if(pid.equals(super.getPid())) {
+            return true;
+        }
         for (UUID uuid : messageClock.keySet()) {
+
+
             //Match uuid integer with local integer
             if (referenceClock.containsKey(uuid)){
-                if(uuid != super.getPid() && referenceClock.get(uuid) >= this.messageClock.get(uuid)){
+                messageValue = messageClock.get(uuid);
+                referenceValue = referenceClock.get(uuid);
+
+                if(uuid != super.getPid() && referenceValue >= messageValue){
                     //CHECK
-                }else if(uuid == super.getPid() && (referenceClock.get(uuid) + 1) == this.messageClock.get(uuid)){
+                }else if(uuid == super.getPid() && (referenceValue + 1) == messageValue){
                     //CHECK
-                }else if(pid == super.getPid() && uuid == super.getPid() && (referenceClock.get(uuid)) == this.messageClock.get(uuid)) {
-                    //CHECK
-                }else{
+                } else{
                     return false;
                 }
+            } else if (messageClock.get(uuid) == 0) {
+                continue;
+            } else {
+                return false;
             }
         }
         return true;
@@ -52,10 +67,12 @@ public class CausalContainer extends AbstractContainer implements Serializable {
     @Override
     public boolean isRepeat(HashMap<UUID, Integer> referenceClock, UUID pid) {
         for (UUID uuid : messageClock.keySet()) {
-            if (referenceClock.containsKey(uuid)) {
+            if (referenceClock.containsKey(uuid) || messageClock.get(uuid) == 0) {
                 if(!(this.messageClock.get(uuid) <= referenceClock.get(uuid))){
                     return false;
                 }
+            } else {
+                return false;
             }
         }
         return true;
