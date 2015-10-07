@@ -54,8 +54,10 @@ public class Middleware {
                             }
                         }
                     } else if (m.getClass() == ReturnJoinMessage.class) {
-                        ArrayList<ComModuleInterface> proxyList = ((ReturnJoinMessage) m).getComs();
+                        ReturnJoinMessage rm = ((ReturnJoinMessage) m);
+                        ArrayList<ComModuleInterface> proxyList = rm.getComs();
                         proxyList.forEach(this.groupModule::addMember);
+                        messageModule.setSeenVector(rm.getClock());
                         ActionEvent ae = new ActionEvent(m, 0, "UpdateUsers");
                         for (ActionListener listener : listeners) {
                             listener.actionPerformed(ae);

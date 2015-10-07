@@ -1,6 +1,7 @@
 package se.umu.cs._5dv147_proj.settings;
 
 import remote.objects.AbstractContainer;
+import se.umu.cs._5dv147_proj.message.module.MessageModule;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +22,7 @@ public class Debug {
     private int maxDelay;
     private int dropRate;
     private boolean reorder;
-    private List<AbstractContainer> holdBackQueue;
+    private MessageModule mm;
     private HashMap<UUID, String> pidToName;
 
     private Debug() {
@@ -51,11 +52,11 @@ public class Debug {
     }
 
     public List<AbstractContainer> fetchHoldBackQueue(){
-        return this.holdBackQueue;
+        return this.mm.getHoldBackQueueCopy();
     }
 
-    public void setHoldBackQueue(List<AbstractContainer> holdBackQueue) {
-        this.holdBackQueue = holdBackQueue;
+    public void setHoldBackQueue(MessageModule mm) {
+        this.mm = mm;
     }
 
     public boolean shouldReorder() {

@@ -46,7 +46,7 @@ public class MessageModule {
         this.middlewarePID = UUID.randomUUID();
         this.seenVector.put(this.middlewarePID, 0);
 
-        Debug.getDebug().setHoldBackQueue(this.holdBackQueue);
+        Debug.getDebug().setHoldBackQueue(this);
     }
 
     public TextMessage fetchTextMessage() {
@@ -66,22 +66,7 @@ public class MessageModule {
 
         if(message.getClass() == TextMessage.class){
             if(container.isDeliverable(seenVector, this.middlewarePID)){
-
-                if (!(container.getPid().equals(this.middlewarePID))) {
-                    if(seenVector.get(container.getPid()) == null){
-                        seenVector.put(container.getPid(), 1);
-                        Debug.getDebug().addPid(container.getPid(), ((TextMessage)container.getMessage()).getName());
-                    }else{
-                        seenVector.put(container.getPid(), seenVector.get(container.getPid()) + 1);
-                    }
-                }
-
-                this.incMessageQueue.add((TextMessage) message);
-
-                ActionEvent ae = new ActionEvent(message, 0, "TextMessage");
-                for(ActionListener al : listeners){
-                    al.actionPerformed(ae);
-                }
+                deliverMessage(container);
                 checkHoldBackQueue();
 
             }else if(!container.isRepeat(seenVector, this.middlewarePID)){
@@ -102,19 +87,31 @@ public class MessageModule {
         }
     }
 
+    private void deliverMessage(AbstractContainer container) {
+        AbstractMessage message = container.getMessage();
+        if (!(container.getPid().equals(this.middlewarePID))) {
+            if(seenVector.get(container.getPid()) == null){
+                seenVector.put(container.getPid(), 1);
+                Debug.getDebug().addPid(container.getPid(), ((TextMessage)container.getMessage()).getName());
+            }else{
+                seenVector.put(container.getPid(), seenVector.get(container.getPid()) + 1);
+            }
+        }
+
+        this.incMessageQueue.add((TextMessage) message);
+
+        ActionEvent ae = new ActionEvent(message, 0, "TextMessage");
+        for(ActionListener al : listeners){
+            al.actionPerformed(ae);
+        }
+    }
+
     private void checkHoldBackQueue() {
         for (int i = 0; i < holdBackQueue.size(); i++) {
             AbstractContainer container = holdBackQueue.get(i);
             if (container.isDeliverable(this.seenVector, this.middlewarePID)) {
-                seenVector.put(container.getPid(), seenVector.get(container.getPid()) == null ? 0 : seenVector.get(container.getPid()) + 1);
-                this.incMessageQueue.add((TextMessage) container.getMessage());
-                this.holdBackQueue.remove(container);
-
-                ActionEvent ae = new ActionEvent(container.getMessage(), 0, "TextMessage");
-                for (ActionListener al : listeners) {
-                    al.actionPerformed(ae);
-                }
-
+                deliverMessage(container);
+                holdBackQueue.remove(container);
                 i = 0;
             }
         }
@@ -125,7 +122,7 @@ public class MessageModule {
     }
 
     public void send(ArrayList<ComModuleInterface> members, ComModuleInterface proxy){
-        ReturnJoinMessage rjm = new ReturnJoinMessage(members);
+        ReturnJoinMessage rjm = new ReturnJoinMessage(members, this.seenVector);
         AbstractContainer container = createContainer(rjm);
         ArrayList<ComModuleInterface> single = new ArrayList<>();
         single.add(proxy);
@@ -159,5 +156,13 @@ public class MessageModule {
             default:
                 return new UnorderedContainer(message,this.middlewarePID);
         }
+    }
+
+    public List<AbstractContainer> getHoldBackQueueCopy() {
+        return this.holdBackQueue;
+    }
+
+    public void setSeenVector(HashMap<UUID, Integer> seenVector) {
+        this.seenVector = seenVector;
     }
 }
