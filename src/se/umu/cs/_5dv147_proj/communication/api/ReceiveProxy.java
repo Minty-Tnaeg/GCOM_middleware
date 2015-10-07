@@ -33,4 +33,9 @@ public class ReceiveProxy implements ComModuleInterface{
     public String getNickName() throws RemoteException {
         return nickName;
     }
+
+    @Override
+    public long ping() throws RemoteException {
+        return System.currentTimeMillis();
+    }
 }

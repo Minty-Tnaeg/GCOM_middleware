@@ -12,6 +12,7 @@ import se.umu.cs._5dv147_proj.message.module.MessageModule;
 
 import se.umu.cs._5dv147_proj.message.type.ElectionMessage;
 import se.umu.cs._5dv147_proj.message.type.JoinMessage;
+import se.umu.cs._5dv147_proj.message.type.LeaveMessage;
 import se.umu.cs._5dv147_proj.message.type.ReturnJoinMessage;
 import se.umu.cs._5dv147_proj.settings.*;
 
@@ -64,6 +65,9 @@ public class Middleware {
                         }
                     } else if (m.getClass() == ElectionMessage.class) {
                         //TODO :: SOMETHING
+                    } else if (m.getClass() == LeaveMessage.class) {
+                        ComModuleInterface com = ((LeaveMessage) m).getProxy();
+                        memberLeft(com);
                     }
 
                 }

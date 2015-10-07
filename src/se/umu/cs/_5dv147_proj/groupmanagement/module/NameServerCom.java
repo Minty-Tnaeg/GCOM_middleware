@@ -41,8 +41,8 @@ public class NameServerCom {
         this.groupList = this.ns.groupList();
     }
 
-    public void takeLeader(String group) throws RemoteException {
-        this.ns.assignNewLeader(group, this.com);
+    public <T extends ComModuleInterface> T takeLeader(String group) throws RemoteException {
+        return (T) this.ns.assignNewLeader(group, com);
     }
 
     public String[][] getGroupList(){

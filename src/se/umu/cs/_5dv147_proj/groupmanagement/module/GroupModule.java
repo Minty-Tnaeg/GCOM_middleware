@@ -23,6 +23,7 @@ public class GroupModule {
     private ReceiveProxy com;
     private HashMap<ComModuleInterface, String> proxyList;
     private NameServerCom ns;
+    private String groupName;
 
 
     /**
@@ -50,6 +51,7 @@ public class GroupModule {
      */
     public ComModuleInterface joinGroup(String groupName) throws RemoteException {
         this.leader = ns.joinGroup(groupName);
+        this.groupName = groupName;
         return this.leader;
     }
 
@@ -117,7 +119,8 @@ public class GroupModule {
      *
      * @param member member to remove.
      */
-    public void removeMember(ComModuleInterface member) {
+    public void removeMember(ComModuleInterface member) throws RemoteException {
+        this.leader = this.ns.takeLeader(this.groupName);
         this.proxyList.remove(member);
     }
 
