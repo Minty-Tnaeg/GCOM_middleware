@@ -8,24 +8,23 @@ Middleware for GCOM
 
 ## Group Management
 GCom needs to dynamicly track the members of the group
-
 Dynamic: May join and leave whenever.
 Re-join = New join
 
 
 ###TODO:
-- Interface for:
-  - Create [X]
-  - Remove [ ]
-  - Add member [X]
-  - Remove member [ ]
+- Interface for :
+  - Create Group [X]
+  - Remove Group [ ]
+  - Add member in group[X]
+  - Remove member in group [X]
 - Error detection
   - Monitor group [ ]
   - Detect crashes [ ]
 - Change membership
   - Notify all members of change [ ]
-- Resolve name [ ]
-  - Propagate name -> list of members. [ ]
+- Resolve name [X]
+  - Propagate name -> list of members. [X]
 
 ### DONE:
 
@@ -34,8 +33,8 @@ Group creator specifies communication methods. For that group.
 
 ### TODO:
 - Non-reliable multicast [X]
-- Reliable multicast [ ]
-- Tree-based reliable multicast [ ]
+- Reliable multicast [ ] (Optional)
+- Tree-based reliable multicast [ ] (Optional)
   - Reliable [ ]
   - Children and parent [ ]
   - Plan [ ]
@@ -46,8 +45,8 @@ Group creator specifies communication methods. For that group.
 ## Message ordering
 Messages must be shown in order but must not arrive in that order.
 ### TODO:
-- FIFO [ ]
-- Causal [ ]
-- Total [ ]
-- Causal-Total [ ]
+- FIFO [ ] (Optional)
+- Causal [ ] 
+- Total [ ] (Optional)
+- Causal-Total [ ] (Optional)
 - Unordered [X]
