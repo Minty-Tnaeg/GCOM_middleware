@@ -5,6 +5,7 @@ import se.umu.cs._5dv147_proj.communication.api.ReceiveProxy;
 import se.umu.cs._5dv147_proj.settings.Debug;
 
 
+import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class GroupModule {
     private ReceiveProxy com;
     private HashMap<ComModuleInterface, String> proxyList;
     private NameServerCom ns;
+    private ComModuleInterface myStub;
     private String groupName;
 
 
@@ -38,9 +40,9 @@ public class GroupModule {
     public GroupModule(String nameServerAddress, int port, String nickName) throws RemoteException {
         this.proxyList = new HashMap<>();
         this.com = new ReceiveProxy(nickName);
-        ComModuleInterface stub = (ComModuleInterface) UnicastRemoteObject.exportObject(this.com, 0);
-        this.proxyList.put(stub, com.getNickName());
-        ns = new NameServerCom(nameServerAddress, port, stub);
+        this.myStub = (ComModuleInterface) UnicastRemoteObject.exportObject(this.com, 0);
+        this.proxyList.put(myStub, com.getNickName());
+        ns = new NameServerCom(nameServerAddress, port, myStub);
     }
 
     /**
@@ -120,8 +122,33 @@ public class GroupModule {
      * @param member member to remove.
      */
     public void removeMember(ComModuleInterface member) throws RemoteException {
-        this.leader = this.ns.takeLeader(this.groupName);
+        //Special case: Leader is leaving.
+        if (compareProxy(member) && compareProxy(leader)) {
+            Debug.getDebug().log("This is the leader receiveing it's own message.");
+            try {
+                if (UnicastRemoteObject.unexportObject(this.myStub, true)) {
+                    Debug.getDebug().log("Leader stub closed");
+                }
+            } catch (NoSuchObjectException noe) {
+                Debug.getDebug().log(noe);
+            }
+
+        } else if (member.equals(this.leader) && !(member.equals(this.com))) {
+            Debug.getDebug().log("Leader is leaving " + member.getNickName());
+            this.leader = this.ns.takeLeader(this.groupName);
+
+        } else {
+            Debug.getDebug().log("Regular member is leaving: " + member.getNickName());
+        }
+
         this.proxyList.remove(member);
+        //Regular case: Regular member is leaving.
+
+
+    }
+
+    public <T extends ComModuleInterface> boolean compareProxy(T com) throws RemoteException {
+       return com.equals(this.myStub);
     }
 
 

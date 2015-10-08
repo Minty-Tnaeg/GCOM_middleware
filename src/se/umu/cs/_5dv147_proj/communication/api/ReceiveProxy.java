@@ -6,6 +6,7 @@ import se.umu.cs._5dv147_proj.communication.module.BasicCommunicationModule;
 import se.umu.cs._5dv147_proj.settings.Debug;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 
 /**
  * Created by c10mjn on 2015-10-05.
@@ -24,8 +25,6 @@ public class ReceiveProxy implements ComModuleInterface{
 
     @Override
     public void receiveMessage(AbstractContainer ac) throws RemoteException {
-
-
         cm.receive(ac);
     }
 

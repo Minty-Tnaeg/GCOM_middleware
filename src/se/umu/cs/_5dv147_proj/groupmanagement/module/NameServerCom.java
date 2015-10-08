@@ -3,6 +3,7 @@ package se.umu.cs._5dv147_proj.groupmanagement.module;
 
 import remote.interfaces.ComModuleInterface;
 import remote.interfaces.NameServerInterface;
+import se.umu.cs._5dv147_proj.settings.Debug;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -26,9 +27,9 @@ public class NameServerCom {
             updateGroupList();
 
         } catch (RemoteException e) {
-            System.err.println(e.getMessage());
+            Debug.getDebug().log(e);
         } catch (NotBoundException e) {
-            e.printStackTrace();
+            Debug.getDebug().log(e);
         }
 
     }

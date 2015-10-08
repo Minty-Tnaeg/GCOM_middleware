@@ -16,6 +16,7 @@ import se.umu.cs._5dv147_proj.message.type.LeaveMessage;
 import se.umu.cs._5dv147_proj.message.type.ReturnJoinMessage;
 import se.umu.cs._5dv147_proj.settings.*;
 
+import javax.sql.rowset.serial.SerialRef;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
@@ -45,6 +46,8 @@ public class Middleware {
                 if (actionEvent.getActionCommand().equals("SystemMessage")) {
                     AbstractContainer c = messageModule.fetchSystemMessage();
                     AbstractMessage m = c.getMessage();
+
+                    //Handling join messages
                     if (m.getClass() == JoinMessage.class) {
 
                         ComModuleInterface com = ((JoinMessage) m).getProxy();
@@ -54,6 +57,7 @@ public class Middleware {
                                 listener.actionPerformed(ae);
                             }
                         }
+                    //Handling returning messages from join
                     } else if (m.getClass() == ReturnJoinMessage.class) {
                         ReturnJoinMessage rm = ((ReturnJoinMessage) m);
                         ArrayList<ComModuleInterface> proxyList = rm.getComs();
@@ -63,11 +67,19 @@ public class Middleware {
                         for (ActionListener listener : listeners) {
                             listener.actionPerformed(ae);
                         }
+                    //Handling election messages.
                     } else if (m.getClass() == ElectionMessage.class) {
                         //TODO :: SOMETHING
+                    //Handling leave messages.
                     } else if (m.getClass() == LeaveMessage.class) {
                         ComModuleInterface com = ((LeaveMessage) m).getProxy();
-                        memberLeft(com);
+                        /*try {
+                            if (!this.groupModule.compareProxy(com)) {*/
+                                memberLeft(com);
+                            /*}
+                        } catch (RemoteException e) {
+                            Debug.getDebug().log(e);
+                        }*/
                     }
 
                 }
@@ -77,11 +89,12 @@ public class Middleware {
         } catch (RemoteException e) {
             Debug.getDebug().log(e);
         }
+
     }
 
     private <T extends ComModuleInterface> boolean handleJoin(T member){
         if(groupModule.addMember(member)){
-            messageModule.send(member, groupModule.getProxyList());
+            messageModule.send(member, groupModule.getProxyList(), "JOIN");
             messageModule.send(groupModule.getProxyList(), member);
             return true;
         }
@@ -99,7 +112,7 @@ public class Middleware {
         try {
             ArrayList<ComModuleInterface> leader = new ArrayList<>();
             leader.add(this.groupModule.joinGroup(group));
-            messageModule.send(groupModule.getCommunicationAPI(), leader);
+            messageModule.send(groupModule.getCommunicationAPI(), leader, "JOIN");
         } catch (RemoteException e) {
             Debug.getDebug().log(e);
         }
@@ -122,8 +135,17 @@ public class Middleware {
         return null;
     }
 
+    /**
+     *
+     * @param member The member who is leaving.
+     * @param <T>
+     */
     public <T extends ComModuleInterface> void memberLeft(T member){
-
+        try {
+            this.groupModule.removeMember(member);
+        } catch (RemoteException e) {
+            Debug.getDebug().log(e);
+        }
     }
 
     /* Message module */
@@ -137,5 +159,11 @@ public class Middleware {
 
     public void addMessageListener(ActionListener e) {
         this.messageModule.registerListener(e);
+    }
+
+    public void sendLeave() throws RemoteException {
+        Debug.getDebug().log("Seding a leave: " + this.groupModule.getCommunicationAPI().getNickName());
+        messageModule.send(groupModule.getCommunicationAPI(), groupModule.getProxyList(), "LEAVE");
+
     }
 }

@@ -9,9 +9,7 @@ import se.umu.cs._5dv147_proj.communication.module.BasicCommunicationModule;
 import se.umu.cs._5dv147_proj.message.container.CausalContainer;
 import se.umu.cs._5dv147_proj.message.container.ContainerType;
 import se.umu.cs._5dv147_proj.message.container.UnorderedContainer;
-import se.umu.cs._5dv147_proj.message.type.JoinMessage;
-import se.umu.cs._5dv147_proj.message.type.ReturnJoinMessage;
-import se.umu.cs._5dv147_proj.message.type.TextMessage;
+import se.umu.cs._5dv147_proj.message.type.*;
 import se.umu.cs._5dv147_proj.settings.Debug;
 
 import java.awt.event.ActionEvent;
@@ -129,13 +127,32 @@ public class MessageModule {
         comMod.send(container, single);
     }
 
-    public void send(ComModuleInterface newMember,  ArrayList<ComModuleInterface> proxys){
-        JoinMessage message = new JoinMessage(newMember);
-        AbstractContainer container = createContainer(message);
-
-        comMod.send(container, proxys);
-
+    public void send(ComModuleInterface newMember,  ArrayList<ComModuleInterface> proxys,String type){
+        AbstractMessage message;
+        switch (type){
+            case "JOIN":
+                Debug.getDebug().log("Sending a JOIN");
+                message = new JoinMessage(newMember);
+                break;
+            case "LEAVE":
+                Debug.getDebug().log("Sending a LEAVE");
+                message = new LeaveMessage(newMember);
+                break;
+            case "ELECT":
+                Debug.getDebug().log("Sending a ELECT");
+                message = new ElectionMessage(1);
+                break;
+            default:
+                Debug.getDebug().log("Sending no message");
+                message = null;
+        }
+        if (message != null) {
+            AbstractContainer container = createContainer(message);
+            comMod.send(container, proxys);
+        }
     }
+
+
 
     public void send(String textMessage, ArrayList<ComModuleInterface> proxys){
         TextMessage message = new TextMessage(textMessage, this.nickName);
