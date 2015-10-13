@@ -133,6 +133,10 @@ public class MessageModule {
                 Debug.getDebug().log("Sending a ELECT");
                 message = new ElectionMessage(1);
                 break;
+            case "ERROR":
+                Debug.getDebug().log("Sedning ERROR");
+                message = new ErrorMessage(newMember);
+                break;
             default:
                 Debug.getDebug().log("Sending no message");
                 message = null;

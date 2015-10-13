@@ -79,6 +79,17 @@ public class Middleware {
                         } catch (RemoteException e) {
                             Debug.getDebug().log(e);
                         }*/
+                    } else if (m.getClass() == ErrorMessage.class) {
+                        Debug.getDebug().log("Got an error message");
+                        ProxyInterface com = ((ErrorMessage) m).getProxy();
+                        if (this.groupModule.isLeader(com)) {
+                            Debug.getDebug().log("Was leader who left");
+                            //The leader has crashed to election.
+
+                        } else {
+                            Debug.getDebug().log("Was member");
+                            memberLeft(com);
+                        }
                     }
                 }
             });

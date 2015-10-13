@@ -25,11 +25,11 @@ public class FrameListener implements java.awt.event.WindowListener {
 
     @Override
     public void windowClosing(WindowEvent e) {
-        try {
+        /*try {
             clientWindow.getMiddleWare().sendLeave();
         } catch (RemoteException e1) {
             System.err.println("Remote exception:" + e1.getMessage());
-        }
+        }*/
     }
 
     @Override

@@ -36,7 +36,7 @@ public class ClientGUI {
         buildChatWindow();
         buildChatMessage();
 
-        SettingsFrame sf = new SettingsFrame("sizeof.cs.umu.se", "33401");
+        SettingsFrame sf = new SettingsFrame("localhost", "33401");
         sf.waitUntilDisposed();
 
         ArrayList<String> args = new ArrayList<>();

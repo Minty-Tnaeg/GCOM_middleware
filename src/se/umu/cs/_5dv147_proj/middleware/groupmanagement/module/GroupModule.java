@@ -143,7 +143,7 @@ public class GroupModule {
             this.leader = this.ns.takeLeader(this.groupName);
 
         } else {
-            Debug.getDebug().log("Regular member is leaving: " + member.getNickName());
+            //Debug.getDebug().log("Regular member is leaving: " + member.getNickName());
         }
 
         this.proxyList.remove(member);
@@ -152,8 +152,12 @@ public class GroupModule {
 
     }
 
-    public <T extends ProxyInterface> boolean compareProxy(T com) throws RemoteException {
+    public <T extends ProxyInterface> boolean compareProxy(T com) {
        return com.equals(this.myStub);
+    }
+
+    public <T extends ProxyInterface> boolean isLeader(T com) {
+        return leader.equals(com);
     }
 
 
