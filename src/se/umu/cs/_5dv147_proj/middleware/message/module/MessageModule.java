@@ -67,10 +67,6 @@ public class MessageModule {
 
             }else if(!container.isRepeat(seenVector, this.middlewarePID)){
                 this.holdBackQueue.add(container);
-                ActionEvent ae = new ActionEvent(message, 0, "holdBack");
-                for(ActionListener al : listeners){
-                    al.actionPerformed(ae);
-                }
             }
 
         }else{
@@ -101,7 +97,8 @@ public class MessageModule {
             if (container.isDeliverable(this.seenVector, this.middlewarePID)) {
                 deliverMessage(container);
                 holdBackQueue.remove(i);
-                i = 0;
+                checkHoldBackQueue();
+                return;
             }
         }
     }

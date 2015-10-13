@@ -32,7 +32,6 @@ public class ClientGUI {
         this.chatPanel = new JPanel(new BorderLayout());
         this.frame.add(this.chatPanel);
 
-        //buildUserWindow();
         buildChatWindow();
         buildChatMessage();
 
@@ -65,8 +64,6 @@ public class ClientGUI {
                 debugFrame.updateHoldBackQueueTable();
             }else if(e.getActionCommand().equals("UpdateUsers")){
                 setUsers(mw.getNameList());
-            }else if(e.getActionCommand().equals("holdBack")){
-                debugFrame.updateHoldBackQueueTable();
             }
             frame.repaint();
         });
