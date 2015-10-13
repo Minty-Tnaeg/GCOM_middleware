@@ -47,7 +47,7 @@ public class ClientGUI {
         args.add("-u");
         args.add(sf.getNickName());
         args.add("-c");
-        args.add("unordered");
+        args.add("causal");
         if(sf.getDebug()){
             args.add("-d");
             this.debugFrame = new DebugGUI();

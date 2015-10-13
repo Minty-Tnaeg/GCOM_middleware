@@ -34,34 +34,46 @@ public class CausalContainer extends AbstractContainer implements Serializable {
      */
     @Override
     public boolean isDeliverable(HashMap<UUID, Integer> referenceClock, UUID pid) {
+        Debug.getDebug().log("--------------------------------------------------");
         int referenceValue = 0;
         int messageValue = 0;
-        Debug.getDebug().log("UUID:" + super.getPid() + " Value: " + messageClock.get(super.getPid()));
-        Debug.getDebug().log("UUID:" + super.getPid() + " Value: " + referenceClock.get(super.getPid()));
+
         if(pid.equals(super.getPid())) {
+            Debug.getDebug().log("Sender was self. Accepting message. ");
+            Debug.getDebug().log("--------------------------------------------------");
             return true;
         }
+
         for (UUID uuid : messageClock.keySet()) {
-
-
+            Debug.getDebug().log("UUID: " + uuid);
             //Match uuid integer with local integer
             if (referenceClock.containsKey(uuid)){
+                Debug.getDebug().log("Referenceclock contains key.");
                 messageValue = messageClock.get(uuid);
                 referenceValue = referenceClock.get(uuid);
 
-                if(uuid != super.getPid() && referenceValue >= messageValue){
-                    //CHECK
-                }else if(uuid == super.getPid() && (referenceValue + 1) == messageValue){
-                    //CHECK
+                Debug.getDebug().log("Messagevalue: " + messageValue + " - Referencevalue: " + referenceValue);
+                Debug.getDebug().log((uuid != super.getPid()) + "");
+                Debug.getDebug().log((referenceValue >= messageValue) + "");
+                if(!uuid.equals(super.getPid()) && referenceValue >= messageValue){
+                    Debug.getDebug().log("Option 1");
+                }else if(uuid.equals(super.getPid()) && (referenceValue + 1) == messageValue){
+                    Debug.getDebug().log("Option 2");
                 } else{
+                    Debug.getDebug().log("Option 3");
+                    Debug.getDebug().log("--------------------------------------------------");
                     return false;
                 }
             } else if (messageClock.get(uuid) == 0) {
+                Debug.getDebug().log("Option 4");
                 continue;
             } else {
+                Debug.getDebug().log("Option 5");
+                Debug.getDebug().log("--------------------------------------------------");
                 return false;
             }
         }
+        Debug.getDebug().log("--------------------------------------------------");
         return true;
     }
 

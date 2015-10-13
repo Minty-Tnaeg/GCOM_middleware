@@ -1,6 +1,5 @@
 package se.umu.cs._5dv147_proj.middleware.message.module;
 
-import se.umu.cs._5dv147_proj.middleware.communication.api.ReceiveProxy;
 import se.umu.cs._5dv147_proj.middleware.communication.module.BasicCommunicationModule;
 import se.umu.cs._5dv147_proj.middleware.message.container.CausalContainer;
 import se.umu.cs._5dv147_proj.middleware.message.container.ContainerType;
@@ -42,7 +41,7 @@ public class MessageModule {
         this.containerType = containerType;
         this.middlewarePID = UUID.randomUUID();
         this.seenVector.put(this.middlewarePID, 0);
-
+        Debug.getDebug().addPid(this.middlewarePID, nickName);
         Debug.getDebug().setHoldBackQueue(this);
     }
 
@@ -75,7 +74,6 @@ public class MessageModule {
             }
 
         }else{
-
             systemMessageQueue.add(container);
             ActionEvent ae = new ActionEvent(container, 0, "SystemMessage");
             for(ActionListener al : listeners){
@@ -87,14 +85,8 @@ public class MessageModule {
     private void deliverMessage(AbstractContainer container) {
         AbstractMessage message = container.getMessage();
         if (!(container.getPid().equals(this.middlewarePID))) {
-            if(seenVector.get(container.getPid()) == null){
-                seenVector.put(container.getPid(), 1);
-                Debug.getDebug().addPid(container.getPid(), ((TextMessage)container.getMessage()).getName());
-            }else{
-                seenVector.put(container.getPid(), seenVector.get(container.getPid()) + 1);
-            }
+            seenVector.put(container.getPid(), seenVector.get(container.getPid()) + 1);
         }
-
         this.incMessageQueue.add((TextMessage) message);
 
         ActionEvent ae = new ActionEvent(message, 0, "TextMessage");
@@ -108,7 +100,7 @@ public class MessageModule {
             AbstractContainer container = holdBackQueue.get(i);
             if (container.isDeliverable(this.seenVector, this.middlewarePID)) {
                 deliverMessage(container);
-                holdBackQueue.remove(container);
+                holdBackQueue.remove(i);
                 i = 0;
             }
         }
@@ -119,7 +111,7 @@ public class MessageModule {
     }
 
     public void send(ArrayList<ProxyInterface> members, ProxyInterface proxy){
-        ReturnJoinMessage rjm = new ReturnJoinMessage(members, this.seenVector);
+        ReturnJoinMessage rjm = new ReturnJoinMessage(members, this.seenVector, this.containerType);
         AbstractContainer container = createContainer(rjm);
         ArrayList<ProxyInterface> single = new ArrayList<>();
         single.add(proxy);
@@ -161,9 +153,12 @@ public class MessageModule {
     }
 
     private AbstractContainer createContainer(AbstractMessage message) {
+        Debug.getDebug().log(containerType + "");
         switch(containerType) {
             case Causal:
                 if (message.getClass() == TextMessage.class) {
+                    Debug.getDebug().log(this.middlewarePID + "");
+                    Debug.getDebug().log(this.seenVector.get(this.middlewarePID) + "");
                     this.seenVector.put(this.middlewarePID, this.seenVector.get(this.middlewarePID) + 1);
                 }
                 return new CausalContainer(message, this.seenVector, this.middlewarePID);
@@ -178,7 +173,19 @@ public class MessageModule {
         return this.holdBackQueue;
     }
 
+    public HashMap<UUID, Integer> getSeenVectorClockCopy() {
+        return this.seenVector;
+    }
+
     public void setSeenVector(HashMap<UUID, Integer> seenVector) {
         this.seenVector = seenVector;
+    }
+
+    public void setContainerType(ContainerType containerType) {
+        this.containerType = containerType;
+    }
+
+    public void addPIDtoVector(UUID pid) {
+        this.seenVector.put(pid, 0);
     }
 }

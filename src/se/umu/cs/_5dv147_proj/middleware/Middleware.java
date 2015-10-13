@@ -5,10 +5,7 @@ import org.apache.commons.cli.ParseException;
 import se.umu.cs._5dv147_proj.middleware.groupmanagement.module.GroupModule;
 import se.umu.cs._5dv147_proj.middleware.message.module.MessageModule;
 
-import se.umu.cs._5dv147_proj.middleware.message.type.ElectionMessage;
-import se.umu.cs._5dv147_proj.middleware.message.type.JoinMessage;
-import se.umu.cs._5dv147_proj.middleware.message.type.LeaveMessage;
-import se.umu.cs._5dv147_proj.middleware.message.type.ReturnJoinMessage;
+import se.umu.cs._5dv147_proj.middleware.message.type.*;
 import se.umu.cs._5dv147_proj.middleware.settings.*;
 import se.umu.cs._5dv147_proj.remotes.interfaces.ProxyInterface;
 import se.umu.cs._5dv147_proj.remotes.objects.AbstractContainer;
@@ -46,9 +43,9 @@ public class Middleware {
 
                     //Handling join messages
                     if (m.getClass() == JoinMessage.class) {
-
                         ProxyInterface com = ((JoinMessage) m).getProxy();
-                        if(handleJoin(com)) {
+                        if(handleJoin(com, c)) {
+
                             ActionEvent ae = new ActionEvent(m, 0, "UpdateUsers");
                             for (ActionListener listener : listeners) {
                                 listener.actionPerformed(ae);
@@ -59,7 +56,12 @@ public class Middleware {
                         ReturnJoinMessage rm = ((ReturnJoinMessage) m);
                         ArrayList<ProxyInterface> proxyList = rm.getComs();
                         proxyList.forEach(this.groupModule::addMember);
+
                         messageModule.setSeenVector(rm.getClock());
+                        messageModule.setContainerType(rm.getContainerType());
+
+                        Debug.getDebug().setPIDtoName(rm.getPIDtoName());
+
                         ActionEvent ae = new ActionEvent(m, 0, "UpdateUsers");
                         for (ActionListener listener : listeners) {
                             listener.actionPerformed(ae);
@@ -78,7 +80,6 @@ public class Middleware {
                             Debug.getDebug().log(e);
                         }*/
                     }
-
                 }
             });
         } catch (ParseException e) {
@@ -89,8 +90,14 @@ public class Middleware {
 
     }
 
-    private <T extends ProxyInterface> boolean handleJoin(T member){
+    private boolean handleJoin(ProxyInterface member, AbstractContainer c){
         if(groupModule.addMember(member)){
+            try {
+                Debug.getDebug().addPid(c.getPid(), member.getNickName());
+            } catch (RemoteException e) {
+                Debug.getDebug().addPid(c.getPid(), "Unknown User");
+            }
+            messageModule.addPIDtoVector(c.getPid());
             messageModule.send(member, groupModule.getProxyList(), "JOIN");
             messageModule.send(groupModule.getProxyList(), member);
             return true;

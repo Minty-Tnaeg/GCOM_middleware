@@ -3,9 +3,9 @@ package se.umu.cs._5dv147_proj.middleware.settings;
 import se.umu.cs._5dv147_proj.middleware.message.module.MessageModule;
 import se.umu.cs._5dv147_proj.remotes.objects.AbstractContainer;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -113,5 +113,27 @@ public class Debug {
 
     public boolean isEnabled() {
         return isEnabled;
+    }
+
+    public HashMap<UUID, Integer> getCompareVectorClock() {
+        return this.mm.getSeenVectorClockCopy();
+    }
+
+    public HashMap<UUID, String> getPIDtoName() {
+        if(isEnabled){
+            return this.pidToName;
+        }else{
+            return null;
+        }
+    }
+
+    public void setPIDtoName(HashMap<UUID, String> PIDtoName) {
+        for(Map.Entry e : PIDtoName.entrySet()){
+            Debug.getDebug().log(e.getKey() + " - " + e.getValue());
+        }
+
+        if(isEnabled){
+            this.pidToName = PIDtoName;
+        }
     }
 }

@@ -6,7 +6,6 @@ import se.umu.cs._5dv147_proj.middleware.settings.Debug;
 import se.umu.cs._5dv147_proj.remotes.objects.AbstractContainer;
 import se.umu.cs._5dv147_proj.remotes.objects.AbstractProxy;
 
-import javax.xml.soap.Text;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Random;

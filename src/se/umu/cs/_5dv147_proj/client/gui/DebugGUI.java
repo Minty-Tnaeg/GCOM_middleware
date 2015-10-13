@@ -9,6 +9,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by c12slm on 2015-10-07.
@@ -110,7 +112,7 @@ public class DebugGUI extends JPanel{
         this.add(jp, BorderLayout.CENTER);
     }
 
-    public void updateHoldBackQueueTable(){
+    public synchronized void updateHoldBackQueueTable(){
         ArrayList<AbstractContainer> holdBackQueue = new ArrayList<>(Debug.getDebug().fetchHoldBackQueue());
 
         String[][] dataTable = new String[holdBackQueue.size()][2];
@@ -118,12 +120,19 @@ public class DebugGUI extends JPanel{
         for(int i = 0; i < this.holdBackTable.getRowCount(); i++){
             this.holdBackTable.removeRow(i);
         }
-        if(holdBackQueue.size() == 0){
-            this.holdBackTable.addRow(new String[] {"", ""});
-        }else{
-            for (AbstractContainer container : holdBackQueue) {
-                this.holdBackTable.addRow(new String[]{container.getMessage().toString(), container.toString()});
-            }
+
+        String s = "[";
+
+        for (Map.Entry<UUID, Integer> entry : Debug.getDebug().getCompareVectorClock().entrySet()) {
+            s += "(" + Debug.getDebug().convertPid(entry.getKey()) + "," + entry.getValue() + ") , ";
+        }
+
+        s = s.substring(0, s.length()-3) +  "]";
+
+
+        this.holdBackTable.addRow(new String[] {"COMPARE VECTOR CLOCK", s});
+        for (AbstractContainer container : holdBackQueue) {
+            this.holdBackTable.addRow(new String[]{container.getMessage().toString(), container.toString()});
         }
         this.holdBackTable.fireTableDataChanged();
     }
