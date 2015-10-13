@@ -32,11 +32,10 @@ public class ClientGUI {
         this.chatPanel = new JPanel(new BorderLayout());
         this.frame.add(this.chatPanel);
 
-        //buildUserWindow();
         buildChatWindow();
         buildChatMessage();
 
-        SettingsFrame sf = new SettingsFrame("sizeof.cs.umu.se", "33401");
+        SettingsFrame sf = new SettingsFrame("localhost", "33401");
         sf.waitUntilDisposed();
 
         ArrayList<String> args = new ArrayList<>();
@@ -65,8 +64,6 @@ public class ClientGUI {
                 debugFrame.updateHoldBackQueueTable();
             }else if(e.getActionCommand().equals("UpdateUsers")){
                 setUsers(mw.getNameList());
-            }else if(e.getActionCommand().equals("holdBack")){
-                debugFrame.updateHoldBackQueueTable();
             }
             frame.repaint();
         });

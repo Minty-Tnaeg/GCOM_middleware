@@ -52,8 +52,9 @@ public class DebugProxy extends AbstractProxy {
                 Debug.getDebug().log("REORDERING PACKET");
                 reOrder.add(ac);
                 if(reOrder.size() >= 4){
-                    AbstractContainer send = reOrder.get(rand.nextInt(4));
-                    reOrder.remove(send);
+                    int remove = rand.nextInt(4);
+                    AbstractContainer send = reOrder.get(remove);
+                    reOrder.remove(remove);
                     cm.receive(send);
                 }
             }else{

@@ -8,9 +8,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.Timer;
 
 /**
  * Created by c12slm on 2015-10-07.
@@ -80,6 +79,14 @@ public class DebugGUI extends JPanel{
         SpringUtilities.makeCompactGrid(buttonPanel, 1, 10, 5, 5, 5, 5);
 
         this.add(buttonPanel, BorderLayout.NORTH);
+
+        java.util.Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                updateHoldBackQueueTable();
+            }
+        }, 500, 500);
     }
 
     private void buildHoldBackQueueTable() {
@@ -115,9 +122,7 @@ public class DebugGUI extends JPanel{
     public synchronized void updateHoldBackQueueTable(){
         ArrayList<AbstractContainer> holdBackQueue = new ArrayList<>(Debug.getDebug().fetchHoldBackQueue());
 
-        String[][] dataTable = new String[holdBackQueue.size()][2];
-
-        for(int i = 0; i < this.holdBackTable.getRowCount(); i++){
+        for(int i = this.holdBackTable.getRowCount() - 1; i >= 0; i--) {
             this.holdBackTable.removeRow(i);
         }
 

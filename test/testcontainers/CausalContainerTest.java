@@ -8,7 +8,7 @@ import se.umu.cs._5dv147_proj.middleware.message.container.CausalContainer;
 import java.util.HashMap;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static junit.framework.TestCase.assertEquals;
 
 public class CausalContainerTest {
     private HashMap<UUID, Integer> referenceVector;
