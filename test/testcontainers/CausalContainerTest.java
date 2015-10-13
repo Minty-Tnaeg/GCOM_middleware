@@ -3,9 +3,7 @@ package testcontainers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import se.umu.cs._5dv147_proj.message.container.CausalContainer;
-import se.umu.cs._5dv147_proj.message.container.ContainerType;
-import se.umu.cs._5dv147_proj.message.module.MessageModule;
+import se.umu.cs._5dv147_proj.middleware.message.container.CausalContainer;
 
 import java.util.HashMap;
 import java.util.UUID;

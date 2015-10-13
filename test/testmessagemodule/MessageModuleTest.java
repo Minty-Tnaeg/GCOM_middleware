@@ -3,10 +3,8 @@ package testmessagemodule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import se.umu.cs._5dv147_proj.message.container.ContainerType;
-import se.umu.cs._5dv147_proj.message.module.MessageModule;
-
-import static org.junit.Assert.*;
+import se.umu.cs._5dv147_proj.middleware.message.container.ContainerType;
+import se.umu.cs._5dv147_proj.middleware.message.module.MessageModule;
 
 public class MessageModuleTest {
     private MessageModule mm;
