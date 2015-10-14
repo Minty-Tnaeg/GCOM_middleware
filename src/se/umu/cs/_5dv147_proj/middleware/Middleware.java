@@ -15,6 +15,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by c10mjn on 20/09/15.
@@ -23,6 +25,7 @@ public class Middleware {
     private MessageModule messageModule;
     private GroupModule groupModule;
     private ArrayList<ActionListener> listeners;
+    private boolean receivedElectionResponse;
 
     public Middleware(String[] args) {
         if (System.getSecurityManager() == null) {
@@ -68,24 +71,35 @@ public class Middleware {
                         }
                     //Handling election messages.
                     } else if (m.getClass() == ElectionMessage.class) {
-                        //TODO :: SOMETHING
-                    //Handling leave messages.
+                        messageModule.send(((ElectionMessage) m).getProxy());
+                        //Handling leave messages.
+                    }else if (m.getClass() == ReturnElectionMessage.class){
+                        this.receivedElectionResponse = true;
                     } else if (m.getClass() == LeaveMessage.class) {
                         ProxyInterface com = ((LeaveMessage) m).getProxy();
-                        /*try {
-                            if (!this.groupModule.compareProxy(com)) {*/
-                                memberLeft(com);
-                            /*}
-                        } catch (RemoteException e) {
-                            Debug.getDebug().log(e);
-                        }*/
+                        memberLeft(com);
                     } else if (m.getClass() == ErrorMessage.class) {
                         Debug.getDebug().log("Got an error message");
                         ProxyInterface com = ((ErrorMessage) m).getProxy();
                         if (this.groupModule.isLeader(com)) {
                             Debug.getDebug().log("Was leader who left");
                             //The leader has crashed to election.
-
+                            messageModule.send(com, groupModule.electNewLeader(), "ELECTION");
+                            receivedElectionResponse = false;
+                            Timer timer = new Timer();
+                            timer.schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    if(!receivedElectionResponse){
+                                        try {
+                                            groupModule.takeLeader();
+                                            messageModule.send(com, groupModule.getProxyList(), "NEWLEADER");
+                                        } catch (RemoteException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            }, 15000);
                         } else {
                             Debug.getDebug().log("Was member");
                             memberLeft(com);
