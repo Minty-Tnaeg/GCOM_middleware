@@ -13,3 +13,5 @@ hs_err_pid*
 out/
 .idea/*
 *.iml
+GCOM_client.jar
+GCOM_server.jar

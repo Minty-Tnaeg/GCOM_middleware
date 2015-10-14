@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="client" name="GCOM_">
+
+  <property name="target" value="1.8"/>
+  <property name="source" value="1.8"/>
+  <path id="GCOM_middleware.classpath">
+    <pathelement location="out/"/>
+    <fileset dir="./externalJar/" id="fileset.jars">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+
+
+  <target name="init">
+    <mkdir dir="out"/>
+    <copy includeemptydirs="false" todir="out">
+      <fileset dir="src">
+        <exclude name="**/*.java"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="build" depends="compile" />
+
+  <target name="compile" depends="init">
+    <echo message="${ant.project.name}: ${ant.file}"/>
+    <javac destdir="out" includeantruntime="false" source="${source}" target="${target}" encoding="ISO-8859-1" executable="/pkg/jdk/jdk1.8.0_25/bin/javac" fork="true" nowarn="true">
+      <src path="src"/>
+      <classpath>
+        <path refid="GCOM_middleware.classpath"/>
+      </classpath>
+      <compilerarg value="-Xlint:all"/>
+    </javac>
+  </target>
+
+  <target name="server" depends="compile">
+    <jar destfile="${ant.project.name}server.jar">
+	<manifest>
+  	  <attribute name="Main-Class"
+               value="se.umu.cs._5dv147_proj.nameServer.NameServerMain" />
+	</manifest>
+      <fileset dir="out/" id="fileset.class">
+        <include name ="**/*.class" />
+      </fileset>
+      <zipgroupfileset refid="fileset.jars" />
+      <manifest>
+
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="client" depends="compile">
+    <jar destfile="${ant.project.name}client.jar">
+	<manifest>
+  	  <attribute name="Main-Class"
+               value="se.umu.cs._5dv147_proj.client.ClientMain" />
+	</manifest>
+      <fileset dir="out/" id="fileset.class">
+        <include name ="**/*.class" />
+      </fileset>
+      <zipgroupfileset refid="fileset.jars" />
+      <manifest>
+
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="clean">
+    <delete dir="out" />
+    <delete file="${ant.project.name}server.jar" />
+    <delete file="${ant.project.name}client.jar" />
+  </target>
+
+  </project>
