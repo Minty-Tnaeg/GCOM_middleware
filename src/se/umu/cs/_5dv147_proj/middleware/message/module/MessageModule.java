@@ -115,24 +115,28 @@ public class MessageModule {
         comMod.send(container, single);
     }
 
-    public void send(ProxyInterface newMember,  ArrayList<ProxyInterface> proxys,String type){
+    public void send(ProxyInterface proxy,  ArrayList<ProxyInterface> proxys,String type){
         AbstractMessage message;
         switch (type){
             case "JOIN":
                 Debug.getDebug().log("Sending a JOIN");
-                message = new JoinMessage(newMember);
+                message = new JoinMessage(proxy);
                 break;
             case "LEAVE":
                 Debug.getDebug().log("Sending a LEAVE");
-                message = new LeaveMessage(newMember);
-                break;
-            case "ELECT":
-                Debug.getDebug().log("Sending a ELECT");
-                message = new ElectionMessage(1);
+                message = new LeaveMessage(proxy);
                 break;
             case "ERROR":
                 Debug.getDebug().log("Sedning ERROR");
-                message = new ErrorMessage(newMember);
+                message = new ErrorMessage(proxy);
+                break;
+            case "ELECTION":
+                Debug.getDebug().log("Sending ELECTION");
+                message = new ElectionMessage(proxy);
+                break;
+            case "NEWLEADER":
+                Debug.getDebug().log("Sending NEWLEADER");
+                message = new NewLeaderMessage(proxy);
                 break;
             default:
                 Debug.getDebug().log("Sending no message");
@@ -144,13 +148,19 @@ public class MessageModule {
         }
     }
 
-
-
     public void send(String textMessage, ArrayList<ProxyInterface> proxys){
         TextMessage message = new TextMessage(textMessage, this.nickName);
         AbstractContainer container = createContainer(message);
 
         comMod.send(container, proxys);
+    }
+
+
+    public void send(ProxyInterface proxy) {
+        ReturnElectionMessage message = new ReturnElectionMessage();
+        AbstractContainer container = createContainer(message);
+
+        comMod.singleSend(container, proxy);
     }
 
     private AbstractContainer createContainer(AbstractMessage message) {

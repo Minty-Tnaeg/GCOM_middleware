@@ -12,6 +12,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by c10mjn on 2015-10-05.
@@ -65,11 +66,10 @@ public class GroupModule {
 
     /**
      *
-     * @param group group which lacks leader.
      * @throws RemoteException
      */
-    public void electLeader(String group) throws RemoteException {
-        this.ns.takeLeader(group);
+    public void takeLeader() throws RemoteException {
+        this.ns.takeLeader(this.groupName);
     }
 
     /**
@@ -144,6 +144,16 @@ public class GroupModule {
 
 
 
+    }
+
+    public ArrayList<ProxyInterface> electNewLeader(){
+        ArrayList<ProxyInterface> highers = new ArrayList<>();
+        for(Map.Entry proxy : proxyList.entrySet()){
+            if(((String) proxy.getValue()).compareTo(proxyList.get(com)) < 0){
+                highers.add((ProxyInterface) proxy.getKey());
+            }
+        }
+        return highers;
     }
 
     public <T extends ProxyInterface> boolean compareProxy(T com) {

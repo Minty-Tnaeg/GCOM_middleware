@@ -1,23 +1,21 @@
 package se.umu.cs._5dv147_proj.middleware.message.type;
 
 
+import se.umu.cs._5dv147_proj.remotes.interfaces.ProxyInterface;
 import se.umu.cs._5dv147_proj.remotes.objects.AbstractMessage;
 
 /**
  * Created by c10mjn on 04/10/15.
  */
 public class ElectionMessage extends AbstractMessage {
-    private int code;
+    private ProxyInterface proxy;
 
-    public ElectionMessage(int code) {
+    public ElectionMessage(ProxyInterface proxy) {
         super();
-        this.code = code;
+        this.proxy = proxy;
     }
 
-    public int getCode() {
-        System.err.println("TJA från elaction");
-        return code;
+    public ProxyInterface getProxy() {
+        return proxy;
     }
-
-
 }
