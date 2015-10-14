@@ -8,16 +8,17 @@ Middleware for GCOM
 
 ## Group Management
 GCom needs to dynamicly track the members of the group
+
 Dynamic: May join and leave whenever.
 Re-join = New join
 
 
 ###TODO:
-- Interface for :
-  - Create Group [X]
-  - Remove Group [ ]
-  - Add member in group[X]
-  - Remove member in group [X]
+- Interface for:
+  - Create [X]
+  - Remove [X]
+  - Add member [X]
+  - Remove member [X]
 - Error detection
   - Monitor group [ ]
   - Detect crashes [ ]

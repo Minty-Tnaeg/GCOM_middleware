@@ -195,4 +195,14 @@ public class Middleware {
         messageModule.send(groupModule.getCommunicationAPI(), groupModule.getProxyList(), "LEAVE");
 
     }
+
+    public void removeGroup(String group) {
+        try {
+            Debug.getDebug().log("Attempting to remove group " + group);
+            this.groupModule.removeGroup(group);
+        } catch (RemoteException e) {
+            Debug.getDebug().log(e);
+        }
+    }
+
 }

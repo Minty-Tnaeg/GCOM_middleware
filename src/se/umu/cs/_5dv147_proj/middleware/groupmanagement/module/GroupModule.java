@@ -6,6 +6,7 @@ import se.umu.cs._5dv147_proj.middleware.settings.Debug;
 import se.umu.cs._5dv147_proj.remotes.interfaces.ProxyInterface;
 import se.umu.cs._5dv147_proj.remotes.objects.AbstractProxy;
 
+
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -130,24 +131,17 @@ public class GroupModule {
         //Special case: Leader is leaving.
         if (compareProxy(member) && compareProxy(leader)) {
             Debug.getDebug().log("This is the leader receiveing it's own message.");
-            try {
-                if (UnicastRemoteObject.unexportObject(this.myStub, true)) {
-                    Debug.getDebug().log("Leader stub closed");
-                }
-            } catch (NoSuchObjectException noe) {
-                Debug.getDebug().log(noe);
-            }
-
         } else if (member.equals(this.leader) && !(member.equals(this.com))) {
             Debug.getDebug().log("Leader is leaving " + member.getNickName());
             this.leader = this.ns.takeLeader(this.groupName);
 
         } else {
+            //Regular case: Regular member is leaving.
             //Debug.getDebug().log("Regular member is leaving: " + member.getNickName());
         }
 
         this.proxyList.remove(member);
-        //Regular case: Regular member is leaving.
+
 
 
     }
@@ -170,5 +164,10 @@ public class GroupModule {
         return leader.equals(com);
     }
 
+    public void removeGroup(String group) throws RemoteException {
+        if(this.ns.removeGroup(group)) {
+            Debug.getDebug().log("Group was removed");
+        }
+    }
 
 }
