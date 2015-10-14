@@ -48,4 +48,8 @@ public class NameServerCom {
     public String[][] getGroupList(){
         return this.groupList;
     }
+
+    public boolean removeGroup(String group) throws RemoteException {
+        return this.ns.removeGroup(group);
+    }
 }

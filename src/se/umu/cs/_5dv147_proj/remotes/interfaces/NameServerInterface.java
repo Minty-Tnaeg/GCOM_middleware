@@ -11,4 +11,7 @@ public interface NameServerInterface<T extends ProxyInterface> extends Serializa
     String[][] groupList() throws RemoteException;
 
     T assignNewLeader(String groupName, T leader) throws RemoteException;
+
+    boolean removeGroup(String groupName) throws RemoteException;
+
 }

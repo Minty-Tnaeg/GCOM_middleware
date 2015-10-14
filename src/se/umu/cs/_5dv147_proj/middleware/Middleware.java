@@ -72,13 +72,7 @@ public class Middleware {
                     //Handling leave messages.
                     } else if (m.getClass() == LeaveMessage.class) {
                         ProxyInterface com = ((LeaveMessage) m).getProxy();
-                        /*try {
-                            if (!this.groupModule.compareProxy(com)) {*/
-                                memberLeft(com);
-                            /*}
-                        } catch (RemoteException e) {
-                            Debug.getDebug().log(e);
-                        }*/
+                        memberLeft(com);
                     } else if (m.getClass() == ErrorMessage.class) {
                         Debug.getDebug().log("Got an error message");
                         ProxyInterface com = ((ErrorMessage) m).getProxy();
@@ -181,4 +175,14 @@ public class Middleware {
         messageModule.send(groupModule.getCommunicationAPI(), groupModule.getProxyList(), "LEAVE");
 
     }
+
+    public void removeGroup(String group) {
+        try {
+            Debug.getDebug().log("Attempting to remove group " + group);
+            this.groupModule.removeGroup(group);
+        } catch (RemoteException e) {
+            Debug.getDebug().log(e);
+        }
+    }
+
 }

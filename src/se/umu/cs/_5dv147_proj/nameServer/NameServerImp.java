@@ -59,7 +59,14 @@ public class NameServerImp<T extends ProxyInterface> implements NameServerInterf
         //System.err.println("Ping: " + pingTime);
         //System.err.println("Difference: " + (time-pingTime));
         return (Math.abs(time - pingTime) <= 5000 );
+    }
 
-
+    @Override
+    public boolean removeGroup(String groupName) throws RemoteException {
+        String nameValue;
+        T value;
+        value = this.leaderList.remove(groupName);
+        nameValue = this.nameList.remove(groupName);
+        return (value != null && nameValue != null);
     }
 }
