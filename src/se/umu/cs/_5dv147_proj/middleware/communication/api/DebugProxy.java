@@ -32,40 +32,46 @@ public class DebugProxy extends AbstractProxy {
 
     @Override
     public void receiveMessage(AbstractContainer ac) throws RemoteException {
-        if(ac.getMessage().getClass() == TextMessage.class){
-            if(Math.random()*100 < Debug.getDebug().getDropRate()){
-                Debug.getDebug().log("DROPPING PACKET");
-                return;
-            }
+        if(!ac.getPid().equals(Debug.getDebug().getPID())) {
+            if (ac.getMessage().getClass() == TextMessage.class) {
+                if (Math.random() * 100 < Debug.getDebug().getDropRate()) {
+                    Debug.getDebug().log("DROPPING PACKET");
+                    throw new RemoteException("DROPPING PACKET");
+                }
 
-            try {
-                int bound = Debug.getDebug().getMaxDelay() - Debug.getDebug().getMinDelay();
-                if(bound > 1){
-                    int time = Debug.getDebug().getMinDelay() + rand.nextInt(bound);
-                    Debug.getDebug().log("DELAYING PACKET BY " + time);
-                    Thread.sleep(time);
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if(Debug.getDebug().shouldReorder()){
-                Debug.getDebug().log("REORDERING PACKET");
-                reOrder.add(ac);
-                if(reOrder.size() >= 4){
-                    int remove = rand.nextInt(4);
-                    AbstractContainer send = reOrder.get(remove);
-                    reOrder.remove(remove);
-                    cm.receive(send);
-                }
-            }else{
-                reOrder.forEach(cm::receive);
-                reOrder.clear();
+                new Thread(() -> {
+                    try {
+                        int bound = Debug.getDebug().getMaxDelay() - Debug.getDebug().getMinDelay();
+                        if (bound > 1) {
+                            int time = Debug.getDebug().getMinDelay() + rand.nextInt(bound);
+                            Debug.getDebug().log("DELAYING PACKET BY " + time);
+                            Thread.sleep(time);
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (Debug.getDebug().shouldReorder()) {
+                        Debug.getDebug().log("REORDERING PACKET");
+                        reOrder.add(ac);
+                        if (reOrder.size() >= 4) {
+                            int remove = rand.nextInt(4);
+                            AbstractContainer send = reOrder.get(remove);
+                            reOrder.remove(remove);
+                            cm.receive(send);
+                        }
+                    } else {
+                        reOrder.forEach(cm::receive);
+                        reOrder.clear();
+                        cm.receive(ac);
+                    }
+                }).start();
+
+            } else {
                 cm.receive(ac);
             }
         }else{
             cm.receive(ac);
         }
-
     }
 
     @Override

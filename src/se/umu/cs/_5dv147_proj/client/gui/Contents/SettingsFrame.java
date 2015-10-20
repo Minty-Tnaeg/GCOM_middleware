@@ -11,6 +11,7 @@ public class SettingsFrame {
 	private JTextField nickName;
 	private JCheckBox debug;
 	private JPanel settingsPanel;
+	private JComboBox<String> order;
 
 	private JButton accept;
 
@@ -33,6 +34,7 @@ public class SettingsFrame {
 		this.nServerName = new JTextField(nameServerAdress, 30);
 		this.nServerPort = new JTextField(nameServerPort);
 		this.debug = new JCheckBox("", true);
+		this.order = new JComboBox<>(new String[]{"Causal", "Unordered"});
 
 		this.accept = new JButton("Connect");
 
@@ -40,6 +42,7 @@ public class SettingsFrame {
 		JLabel nServNameLabel = new JLabel("Address: ", JLabel.TRAILING);
 		JLabel nickLabel = new JLabel("Nickname: ", JLabel.TRAILING);
 		JLabel debugLabel = new JLabel("Enable Debug", JLabel.TRAILING);
+		JLabel orderLabel = new JLabel("Choose ordering", JLabel.TRAILING);
 		JLabel emptyLabel = new JLabel("", JLabel.TRAILING);
 
 		//Nickname
@@ -56,6 +59,12 @@ public class SettingsFrame {
 		this.settingsFrame.add(portLabel);
 		portLabel.setLabelFor(this.nServerPort);
 		this.settingsFrame.add(this.nServerPort);
+
+		//Ordering
+		this.settingsFrame.add(orderLabel);
+		debugLabel.setLabelFor(this.order);
+		this.settingsFrame.add(this.order);
+		this.order.setSelectedIndex(0);
 
 		//Debug
 		this.settingsFrame.add(debugLabel);
@@ -116,7 +125,7 @@ public class SettingsFrame {
 		});
 		this.accept.addActionListener(ae -> settingsFrame.dispose());
 
-		SpringUtilities.makeCompactGrid(this.settingsPanel, 5, 2, 5, 5, 5, 5);
+		SpringUtilities.makeCompactGrid(this.settingsPanel, 6, 2, 5, 5, 5, 5);
 	}
 
 	public String getNameServerAdress(){
@@ -131,9 +140,14 @@ public class SettingsFrame {
 		return nickName.getText();
 	}
 
+	public String getOrdering() {
+		return ((String) this.order.getSelectedItem()).toLowerCase();
+	}
+
 	public boolean getDebug() {
 		return debug.isSelected();
 	}
+
 
 	public void waitUntilDisposed() {
 		while(this.settingsFrame.isDisplayable()){

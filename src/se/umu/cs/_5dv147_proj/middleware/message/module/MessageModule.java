@@ -43,6 +43,7 @@ public class MessageModule {
         this.seenVector.put(this.middlewarePID, 0);
         Debug.getDebug().addPid(this.middlewarePID, nickName);
         Debug.getDebug().setHoldBackQueue(this);
+        Debug.getDebug().setPID(this.middlewarePID);
     }
 
     public TextMessage fetchTextMessage() {
@@ -64,7 +65,6 @@ public class MessageModule {
             if(container.isDeliverable(seenVector, this.middlewarePID)){
                 deliverMessage(container);
                 checkHoldBackQueue();
-
             }else if(!container.isRepeat(seenVector, this.middlewarePID)){
                 this.holdBackQueue.add(container);
             }
@@ -80,9 +80,7 @@ public class MessageModule {
 
     private void deliverMessage(AbstractContainer container) {
         AbstractMessage message = container.getMessage();
-        if (!(container.getPid().equals(this.middlewarePID))) {
-            seenVector.put(container.getPid(), seenVector.get(container.getPid()) + 1);
-        }
+        seenVector.put(container.getPid(), seenVector.get(container.getPid()) + 1);
         this.incMessageQueue.add((TextMessage) message);
 
         ActionEvent ae = new ActionEvent(message, 0, "TextMessage");
@@ -167,12 +165,14 @@ public class MessageModule {
         Debug.getDebug().log(containerType + "");
         switch(containerType) {
             case Causal:
+                HashMap<UUID, Integer> localCopy = null;
                 if (message.getClass() == TextMessage.class) {
                     Debug.getDebug().log(this.middlewarePID + "");
                     Debug.getDebug().log(this.seenVector.get(this.middlewarePID) + "");
-                    this.seenVector.put(this.middlewarePID, this.seenVector.get(this.middlewarePID) + 1);
+                    localCopy = (HashMap<UUID, Integer>) this.seenVector.clone();
+                    localCopy.put(this.middlewarePID, this.seenVector.get(this.middlewarePID) + 1);
                 }
-                return new CausalContainer(message, this.seenVector, this.middlewarePID);
+                return new CausalContainer(message, localCopy, this.middlewarePID);
             case Unordered:
                 return new UnorderedContainer(message, this.middlewarePID);
             default:

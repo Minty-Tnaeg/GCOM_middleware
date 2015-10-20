@@ -25,6 +25,7 @@ public class Debug {
     private boolean reorder;
     private MessageModule mm;
     private HashMap<UUID, String> pidToName;
+    private UUID PID;
 
     private Debug() {
         pidToName = new HashMap<>();
@@ -135,5 +136,13 @@ public class Debug {
         if(isEnabled){
             this.pidToName = PIDtoName;
         }
+    }
+
+    public void setPID(UUID PID){
+        this.PID = PID;
+    }
+
+    public UUID getPID() {
+        return this.PID;
     }
 }

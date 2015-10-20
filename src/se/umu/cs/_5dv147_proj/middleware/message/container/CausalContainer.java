@@ -38,12 +38,6 @@ public class CausalContainer extends AbstractContainer implements Serializable {
         int referenceValue = 0;
         int messageValue = 0;
 
-        if(pid.equals(super.getPid())) {
-            Debug.getDebug().log("Sender was self. Accepting message. ");
-            Debug.getDebug().log("--------------------------------------------------");
-            return true;
-        }
-
         for (UUID uuid : messageClock.keySet()) {
             Debug.getDebug().log("UUID: " + uuid);
             //Match uuid integer with local integer
