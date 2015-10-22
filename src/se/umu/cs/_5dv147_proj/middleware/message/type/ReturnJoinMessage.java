@@ -18,7 +18,8 @@ public class ReturnJoinMessage extends AbstractMessage {
     private ContainerType containerType;
     private HashMap<UUID, String> PIDtoName;
 
-    public ReturnJoinMessage(ArrayList<ProxyInterface> coms, HashMap<UUID, Integer> leaderClock, ContainerType containerType) {
+    public ReturnJoinMessage(ArrayList<ProxyInterface> coms, HashMap<UUID, Integer> leaderClock, ContainerType containerType, ProxyInterface sender) {
+        super(sender);
         this.coms = coms;
         this.leaderClock = leaderClock;
         this.containerType = containerType;

@@ -10,8 +10,8 @@ public class ErrorMessage extends AbstractMessage{
     private ProxyInterface errorProxy;
 
 
-    public ErrorMessage(ProxyInterface errorProxy) {
-        super();
+    public ErrorMessage(ProxyInterface errorProxy, ProxyInterface sender) {
+        super(sender);
         this.errorProxy = errorProxy;
     }
 

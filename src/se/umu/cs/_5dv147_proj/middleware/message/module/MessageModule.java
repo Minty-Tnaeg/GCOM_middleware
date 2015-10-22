@@ -28,6 +28,7 @@ public class MessageModule {
     private ArrayList<ActionListener> listeners;
     private ContainerType containerType;
     private UUID middlewarePID;
+    private ProxyInterface proxy;
 
     public MessageModule(AbstractProxy comAPI, ContainerType containerType,
                          String nickName) {
@@ -41,6 +42,7 @@ public class MessageModule {
         this.containerType = containerType;
         this.middlewarePID = UUID.randomUUID();
         this.seenVector.put(this.middlewarePID, 0);
+        this.proxy = comAPI;
         Debug.getDebug().addPid(this.middlewarePID, nickName);
         Debug.getDebug().setHoldBackQueue(this);
         Debug.getDebug().setPID(this.middlewarePID);
@@ -104,37 +106,43 @@ public class MessageModule {
     public void registerListener(ActionListener al) {
         listeners.add(al);
     }
-
+/*
     public void send(ArrayList<ProxyInterface> members, ProxyInterface proxy){
         ReturnJoinMessage rjm = new ReturnJoinMessage(members, this.seenVector, this.containerType);
         AbstractContainer container = createContainer(rjm);
         ArrayList<ProxyInterface> single = new ArrayList<>();
         single.add(proxy);
         comMod.send(container, single);
-    }
+    }*/
 
     public void send(ProxyInterface proxy,  ArrayList<ProxyInterface> proxys,String type){
         AbstractMessage message;
         switch (type){
             case "JOIN":
                 Debug.getDebug().log("Sending a JOIN");
-                message = new JoinMessage(proxy);
+                message = new JoinMessage(proxy, this.proxy);
                 break;
             case "LEAVE":
                 Debug.getDebug().log("Sending a LEAVE");
-                message = new LeaveMessage(proxy);
+                message = new LeaveMessage(proxy, this.proxy);
                 break;
             case "ERROR":
                 Debug.getDebug().log("Sedning ERROR");
-                message = new ErrorMessage(proxy);
+                message = new ErrorMessage(proxy, this.proxy);
                 break;
             case "ELECTION":
                 Debug.getDebug().log("Sending ELECTION");
-                message = new ElectionMessage(proxy);
+                message = new ElectionMessage(proxy, this.proxy);
                 break;
             case "NEWLEADER":
                 Debug.getDebug().log("Sending NEWLEADER");
-                message = new NewLeaderMessage(proxy);
+                message = new NewLeaderMessage(proxy, this.proxy);
+                break;
+            case "RETURNJOIN":
+                Debug.getDebug().log("Sending RETURNJOIN");
+                message = new ReturnJoinMessage((ArrayList<ProxyInterface>) proxys.clone(), this.seenVector, this.containerType, this.proxy);
+                proxys = new ArrayList<>();
+                proxys.add(proxy);
                 break;
             default:
                 Debug.getDebug().log("Sending no message");
@@ -147,7 +155,7 @@ public class MessageModule {
     }
 
     public void send(String textMessage, ArrayList<ProxyInterface> proxys){
-        TextMessage message = new TextMessage(textMessage, this.nickName);
+        TextMessage message = new TextMessage(textMessage, this.nickName, this.proxy);
         AbstractContainer container = createContainer(message);
 
         comMod.send(container, proxys);
@@ -155,10 +163,14 @@ public class MessageModule {
 
 
     public void send(ProxyInterface proxy) {
-        ReturnElectionMessage message = new ReturnElectionMessage();
+        ReturnElectionMessage message = new ReturnElectionMessage(this.proxy);
         AbstractContainer container = createContainer(message);
 
         comMod.singleSend(container, proxy);
+    }
+
+    public void send(AbstractContainer c, ArrayList<ProxyInterface> proxys){
+        comMod.send(c, proxys);
     }
 
     private AbstractContainer createContainer(AbstractMessage message) {
@@ -197,6 +209,8 @@ public class MessageModule {
     }
 
     public void addPIDtoVector(UUID pid) {
-        this.seenVector.put(pid, 0);
+        if(this.seenVector.get(pid) == null){
+            this.seenVector.put(pid, 0);
+        }
     }
 }

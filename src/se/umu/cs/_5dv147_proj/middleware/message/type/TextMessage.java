@@ -1,5 +1,6 @@
 package se.umu.cs._5dv147_proj.middleware.message.type;
 
+import se.umu.cs._5dv147_proj.remotes.interfaces.ProxyInterface;
 import se.umu.cs._5dv147_proj.remotes.objects.AbstractMessage;
 
 /**
@@ -10,8 +11,8 @@ public class TextMessage extends AbstractMessage {
     private final long time;
     private final String name;
 
-    public TextMessage(String message, String name) {
-        super();
+    public TextMessage(String message, String name, ProxyInterface sender) {
+        super(sender);
         this.message = message;
         this.name = name;
         time = System.currentTimeMillis();

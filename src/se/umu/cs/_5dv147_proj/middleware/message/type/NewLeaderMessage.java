@@ -9,8 +9,8 @@ import se.umu.cs._5dv147_proj.remotes.objects.AbstractMessage;
 public class NewLeaderMessage extends AbstractMessage {
     private ProxyInterface newLeader;
 
-    public NewLeaderMessage(ProxyInterface newLeader) {
-        super();
+    public NewLeaderMessage(ProxyInterface newLeader, ProxyInterface sender) {
+        super(sender);
         this.newLeader = newLeader;
     }
 

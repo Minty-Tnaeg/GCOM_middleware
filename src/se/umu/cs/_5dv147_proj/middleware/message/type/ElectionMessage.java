@@ -10,8 +10,8 @@ import se.umu.cs._5dv147_proj.remotes.objects.AbstractMessage;
 public class ElectionMessage extends AbstractMessage {
     private ProxyInterface proxy;
 
-    public ElectionMessage(ProxyInterface proxy) {
-        super();
+    public ElectionMessage(ProxyInterface proxy, ProxyInterface sender) {
+        super(sender);
         this.proxy = proxy;
     }
 

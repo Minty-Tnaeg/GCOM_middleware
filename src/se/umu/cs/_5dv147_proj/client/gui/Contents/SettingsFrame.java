@@ -1,6 +1,7 @@
 package se.umu.cs._5dv147_proj.client.gui.Contents;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -21,12 +22,14 @@ public class SettingsFrame {
 		this.settingsFrame.setResizable(false);
 		this.settingsPanel = new JPanel(new SpringLayout());
 		this.settingsFrame.setContentPane(this.settingsPanel);
+		this.settingsFrame.setMinimumSize(new Dimension(500,200));
 
 		buildSettingsPanel(nameServerAdress, nameServerPort);
 
 		this.settingsFrame.setVisible(true);
 		this.settingsFrame.pack();
 		this.settingsFrame.setLocationRelativeTo(null);
+		this.nickName.requestFocus();
 	}
 
 	private void buildSettingsPanel(String nameServerAdress, String nameServerPort) {

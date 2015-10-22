@@ -40,15 +40,16 @@ public class Middleware {
             this.messageModule = new MessageModule(this.groupModule.getCommunicationAPI(), cli.containerType, cli.nickName);
 
             this.messageModule.registerListener(actionEvent -> {
+                Debug.getDebug().log("Got message. Type is: " + actionEvent.getActionCommand());
                 if (actionEvent.getActionCommand().equals("SystemMessage")) {
                     AbstractContainer c = messageModule.fetchSystemMessage();
                     AbstractMessage m = c.getMessage();
 
                     //Handling join messages
                     if (m.getClass() == JoinMessage.class) {
-                        ProxyInterface com = ((JoinMessage) m).getProxy();
-                        if(handleJoin(com, c)) {
+                        Debug.getDebug().log("Got JOIN message from " + c.getPid());
 
+                        if(handleJoin(c)) {
                             ActionEvent ae = new ActionEvent(m, 0, "UpdateUsers");
                             for (ActionListener listener : listeners) {
                                 listener.actionPerformed(ae);
@@ -56,6 +57,7 @@ public class Middleware {
                         }
                     //Handling returning messages from join
                     } else if (m.getClass() == ReturnJoinMessage.class) {
+                        Debug.getDebug().log("Got returnjoin message from " + c.getPid());
                         ReturnJoinMessage rm = ((ReturnJoinMessage) m);
                         ArrayList<ProxyInterface> proxyList = rm.getComs();
                         proxyList.forEach(this.groupModule::addMember);
@@ -76,7 +78,7 @@ public class Middleware {
                     }else if (m.getClass() == ReturnElectionMessage.class){
                         this.receivedElectionResponse = true;
                     } else if (m.getClass() == LeaveMessage.class) {
-                        ProxyInterface com = ((LeaveMessage) m).getProxy();
+                        ProxyInterface com = ((LeaveMessage) m).getLeaver();
                         memberLeft(com);
                     } else if (m.getClass() == ErrorMessage.class) {
                         Debug.getDebug().log("Got an error message");
@@ -115,16 +117,23 @@ public class Middleware {
 
     }
 
-    private boolean handleJoin(ProxyInterface member, AbstractContainer c){
+    private boolean handleJoin(AbstractContainer c){
+        JoinMessage jm = ((JoinMessage) c.getMessage());
+        ProxyInterface member = jm.getNewMember();
+
         if(groupModule.addMember(member)){
+            Debug.getDebug().log("Added member: " + c.getPid());
             try {
                 Debug.getDebug().addPid(c.getPid(), member.getNickName());
             } catch (RemoteException e) {
                 Debug.getDebug().addPid(c.getPid(), "Unknown User");
             }
+
             messageModule.addPIDtoVector(c.getPid());
-            messageModule.send(member, groupModule.getProxyList(), "JOIN");
-            messageModule.send(groupModule.getProxyList(), member);
+            if(member.equals(jm.getSender())){
+                messageModule.send(member, groupModule.getProxyList(), "RETURNJOIN");
+                messageModule.send(c, groupModule.getProxyList());
+            }
             return true;
         }
         return false;
