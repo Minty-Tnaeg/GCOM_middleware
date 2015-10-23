@@ -10,6 +10,7 @@ import se.umu.cs._5dv147_proj.middleware.settings.*;
 import se.umu.cs._5dv147_proj.remotes.interfaces.ProxyInterface;
 import se.umu.cs._5dv147_proj.remotes.objects.AbstractContainer;
 import se.umu.cs._5dv147_proj.remotes.objects.AbstractMessage;
+import se.umu.cs._5dv147_proj.remotes.objects.AbstractProxy;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -62,7 +63,8 @@ public class Middleware {
                         ArrayList<ProxyInterface> proxyList = rm.getComs();
                         proxyList.forEach(this.groupModule::addMember);
 
-                        messageModule.setSeenVector(rm.getClock());
+                        messageModule.send(null, proxyList, "CLOCKSYNC");
+
                         messageModule.setContainerType(rm.getContainerType());
 
                         Debug.getDebug().setPIDtoName(rm.getPIDtoName());
@@ -72,11 +74,15 @@ public class Middleware {
                             listener.actionPerformed(ae);
                         }
                     //Handling election messages.
-                    } else if (m.getClass() == ElectionMessage.class) {
-                        messageModule.send(((ElectionMessage) m).getProxy());
-                        //Handling leave messages.
+                    } else if (m.getClass() == ClockSyncMessage.class) {
+                        messageModule.send(m.getSender(), "RETURNCLOCKSYNC");
+                    }else if (m.getClass() == ReturnClockSyncMessage.class) {
+                        this.messageModule.setSeenVector(c.getPid(), ((ReturnClockSyncMessage)m).getSequenceNumber());
+                    }else if (m.getClass() == ElectionMessage.class) {
+                        messageModule.send(((ElectionMessage) m).getProxy(), "RETURNELECTIONMESSAGE");
                     }else if (m.getClass() == ReturnElectionMessage.class){
                         this.receivedElectionResponse = true;
+                    //Handling leave messages.
                     } else if (m.getClass() == LeaveMessage.class) {
                         ProxyInterface com = ((LeaveMessage) m).getLeaver();
                         memberLeft(com);

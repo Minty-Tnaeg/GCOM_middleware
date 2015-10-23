@@ -144,6 +144,10 @@ public class MessageModule {
                 proxys = new ArrayList<>();
                 proxys.add(proxy);
                 break;
+            case "CLOCKSYNC":
+                Debug.getDebug().log("Sending CLOCKSYNC");
+                message = new ClockSyncMessage(this.proxy);
+                break;
             default:
                 Debug.getDebug().log("Sending no message");
                 message = null;
@@ -162,11 +166,25 @@ public class MessageModule {
     }
 
 
-    public void send(ProxyInterface proxy) {
-        ReturnElectionMessage message = new ReturnElectionMessage(this.proxy);
-        AbstractContainer container = createContainer(message);
-
-        comMod.singleSend(container, proxy);
+    public void send(ProxyInterface proxy, String type) {
+        AbstractMessage message;
+        switch (type){
+            case "RETURNELECTION":
+                Debug.getDebug().log("Sending a RETURNELECTION");
+                message = new ReturnElectionMessage(this.proxy);
+                break;
+            case "RETURNCLOCKSYNC":
+                Debug.getDebug().log("Sending a RETURNCLOCKSYNC");
+                message = new ReturnClockSyncMessage(this.proxy, this.seenVector.get(this.middlewarePID));
+                break;
+            default:
+                Debug.getDebug().log("Sending no message");
+                message = null;
+        }
+        if (message != null) {
+            AbstractContainer container = createContainer(message);
+            comMod.singleSend(container, proxy);
+        }
     }
 
     public void send(AbstractContainer c, ArrayList<ProxyInterface> proxys){
@@ -200,8 +218,8 @@ public class MessageModule {
         return this.seenVector;
     }
 
-    public void setSeenVector(HashMap<UUID, Integer> seenVector) {
-        this.seenVector = seenVector;
+    public void setSeenVector(UUID pid, Integer sequenceNumber) {
+        this.seenVector.put(pid, sequenceNumber);
     }
 
     public void setContainerType(ContainerType containerType) {
