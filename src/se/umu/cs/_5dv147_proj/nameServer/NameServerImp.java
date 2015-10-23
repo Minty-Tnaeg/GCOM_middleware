@@ -1,5 +1,6 @@
 package se.umu.cs._5dv147_proj.nameServer;
 
+import se.umu.cs._5dv147_proj.middleware.settings.Debug;
 import se.umu.cs._5dv147_proj.remotes.interfaces.NameServerInterface;
 import se.umu.cs._5dv147_proj.remotes.interfaces.ProxyInterface;
 
@@ -44,10 +45,11 @@ public class NameServerImp<T extends ProxyInterface> implements NameServerInterf
     @Override
     public T assignNewLeader(String groupName, T leader) throws RemoteException {
         if (isAlive(leader)) {
-        //System.err.println("Take over attempt by: " + leader.getNickName());
-        //System.err.println("Leader at start: " + this.leaderList.get(groupName).getNickName());
-        this.leaderList.put(groupName, leader);
-        //System.err.println("Leader after check: " + this.leaderList.get(groupName).getNickName());
+            Debug.getDebug().log("Take over attempt by: " + leader.getNickName());
+            Debug.getDebug().log("Leader at start: " + this.leaderList.get(groupName).getNickName());
+            this.leaderList.put(groupName, leader);
+            this.nameList.put(groupName, leader.getNickName());
+            Debug.getDebug().log("Leader after check: " + this.leaderList.get(groupName).getNickName());
         }
         return this.leaderList.get(groupName);
     }
